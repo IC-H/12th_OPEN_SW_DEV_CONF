@@ -1,0 +1,5 @@
+# ignore Local setting
+mysite/mysite/settings.py
+
+# ignore py cache
+**/__pycache__/**
