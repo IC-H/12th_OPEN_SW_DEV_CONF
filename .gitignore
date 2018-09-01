@@ -1,5 +1,5 @@
 # ignore Local setting
-mysite/mysite/settings.py
+mysite/mysite/settings/develop.py
 
 # ignore py cache
 **/__pycache__/**
