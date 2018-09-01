@@ -6,7 +6,7 @@ class ModelAjax {
 		this.data             = {};
 		this.successCallBack  = null;
 		this.failureCallBack  = null; 
-		this.httpMethods      = ['POST', 'GET', 'POST'];
+		this.httpMethods      = ['POST', 'GET', 'PUT'];
 	}
 	
 	setData(data) {

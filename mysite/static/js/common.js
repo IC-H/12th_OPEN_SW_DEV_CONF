@@ -23,4 +23,23 @@ class CommonJs {
 	    });
 	    return false;
 	}
+	
+	static accordionClickEvent(element) {
+	    var panel = $(element).parents('.accordion-row').find('.panel');
+	    if (panel.is(':visible')) {
+	        panel.hide();
+	    } else {
+	        panel.show();
+	    }
+	    return false;
+	}
+	
+	static accordionPanelClickEvent(element) {
+	    var panel = $(element);
+	    if (panel.attr('checked')) {
+	        panel.removeAttr('checked');
+	    } else {
+            panel.attr('checked', 'checked');
+	    }
+	}
 }
