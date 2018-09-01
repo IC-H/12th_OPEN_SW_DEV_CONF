@@ -3,3 +3,7 @@ mysite/mysite/settings/develop.py
 
 # ignore py cache
 **/__pycache__/**
+
+# ignore log
+**.log.**
+**.log
