@@ -1,0 +1,44 @@
+{% extends 'common/base.html' %}
+
+{% load static %}
+
+{% block javascripts %}
+    <script type='text/javascript' src='{% static "js/common.js" %}'></script>
+    <script type='text/javascript' src='{% static "js/model/model_ajax.js" %}'></script>
+    <script type='text/javascript' src='{% static "js/utils/strings.js" %}'></script>
+    <script type='text/javascript' src='{% static "js/notice_url/notice_url.js" %}'></script>
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel='stylesheet' href='{% static "style/notice_url/notice_url.css" %}'></link>
+{% endblock %}
+
+{% block title %}Notice URL Search{% endblock %}
+
+{% block body %}
+<div>
+    <div class='header center text-center'>
+        <h1>You can search noticable url you want!</h1>
+    </div>
+    <div class='search center'>
+        <input
+            type='text'
+            id='key-words'
+            class='text-center'
+            name='key-words'
+            placeholder='Type keywords'
+            onkeyup='NoticeUlrJsObj.searchAjax();'
+            val=''
+            data-url='{"request":"{% url 'search_ajax' %}"}'
+        />
+        {% csrf_token %}
+    </div>
+    <div class='url-list'>
+        {% for domain_data in domain_list %}
+            {% include 'common/accordion.html' with title=domain_data.domain item_list=domain_data.url_list %}
+        {% endfor %}
+        <div>
+        </div>
+    </div>
+</div>
+{% endblock %}

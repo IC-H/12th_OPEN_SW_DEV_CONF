@@ -3,8 +3,11 @@
     <head>
         <meta charset='UTF-8' />
         <title>{% block title %} Common Yummy Title {% endblock %}</title>
+        {% load static %}
+        <link rel='stylesheet' href='{% static "style/common.css" %}'></link>
         {% block stylesheets %}
         {% endblock %}
+        <script src='{% static "js/jquery-3.3.1.min.js" %}'></script>
         {% block javascripts %}
         {% endblock %}
     </head>

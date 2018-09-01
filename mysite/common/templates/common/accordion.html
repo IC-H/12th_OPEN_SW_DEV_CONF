@@ -1,0 +1,10 @@
+<div class='accordion-row'>
+    <div class='accordion' onclick='{{ accordion_click_callback|default:"CommonJs.accordionClickEvent(this);" }}'><p>{{ title|default:'title' }}</p></div>
+    {% if item_list|length > 0 %}
+        {% for item in item_list %}
+            <div class='panel' onclick='{{ panel_click_calback|default:"CommonJs.accordionPanelClickEvent(this);" }}'><p>{{ item }}</p></div>
+        {% endfor %}
+    {% else %}
+        <div class='panel'><p>item</p></div>
+    {% endif %}
+</div>
