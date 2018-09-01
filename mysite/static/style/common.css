@@ -1,0 +1,41 @@
+.accordion {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 18px;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    transition: 0.4s;
+    margin: 20px 20px 0px 20px;
+}
+
+.accordion:hover {
+    background-color: #ccc; 
+}
+
+.panel {
+    padding: 0px 18px;
+    display: none;
+    background-color: white;
+    overflow: hidden;
+    margin: 0px 20px;
+    background: bisque;
+    /* border: solid 0.1px; */
+    cursor: pointer;
+}
+
+.panel:hover, .panel[checked] {
+	background-color: ghostwhite; 
+}
+
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.text-center {
+    text-align: -webkit-center;
+}
