@@ -1,27 +1,25 @@
-form{
+.login_box form{
     text-align : center;
     margin : auto;
     width : 400px;
     padding : 1.5em;
     border : 1px solid #CCC;
+    color : #666;
 }
 
-label{
+.login_box label{
     display : inline-block;
     width : 300px;
     text-align : left;
     margin-bottom : -1em;
-    color : #666;
 }
 
-input{
+.login_box input{
     width: 300px;
     height : 25px;
-    border: 1px solid #666;
-    color : #666;
 }
 
-button{
+.login_box button{
     margin-left: 18em;
     margin-top : 1.5em;
 }
