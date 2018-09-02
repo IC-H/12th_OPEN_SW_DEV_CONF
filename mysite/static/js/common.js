@@ -42,4 +42,4 @@ class CommonJs {
             panel.attr('checked', 'checked');
 	    }
 	}
-}
+};

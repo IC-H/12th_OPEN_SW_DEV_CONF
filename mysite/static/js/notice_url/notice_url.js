@@ -12,4 +12,4 @@ NoticeUlrJsObj = {
         });
         CommonJs.ajax(searchModel);
     },
-}
+};

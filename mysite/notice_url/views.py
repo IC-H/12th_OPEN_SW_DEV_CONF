@@ -14,4 +14,4 @@ def search(request):
             }
         ]
     }
-    return render(request, 'search/index.html', data);
+    return render(request, 'search/index.html', data)

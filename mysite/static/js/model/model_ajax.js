@@ -52,4 +52,4 @@ class ModelAjax {
         }
         return true;
     }
-}
+};

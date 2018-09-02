@@ -5,4 +5,4 @@ def search(request):
     data = {
         'keyWrods' : params
     }
-    return JsonResponse(data);
+    return JsonResponse(data)

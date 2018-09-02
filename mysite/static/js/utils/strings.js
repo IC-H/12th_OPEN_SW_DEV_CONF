@@ -5,4 +5,4 @@ class StringUtil {
 		}
 		return false;
 	}
-}
+};
