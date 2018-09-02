@@ -1,17 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from common.models.domain_url import DomainUrl
 
 def search(request):
+    domain_list = DomainUrl.find_all_with_domain()
     data = {
-        'domain_list' : [
-            {
-                'domain'    : 'domain1',
-                'url_list'  : ['url1', 'url2']
-            },
-            {
-                'domain'    : 'domain2',
-                'url_list'  : ['url1']
-            }
-        ]
+        'domain_list' : domain_list
     }
     return render(request, 'search/index.html', data)
