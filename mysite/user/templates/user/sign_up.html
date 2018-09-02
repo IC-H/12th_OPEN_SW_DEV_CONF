@@ -1,0 +1,47 @@
+﻿{% extends 'common/base.html' %}
+
+{% load static %}
+
+{% block stylesheets %}
+    <link rel='stylesheet' href='{% static "style/user/login_box.css" %}'>
+{% endblock %}
+
+{% block title %}Yammy SPAM - 회원가입{% endblock %}
+
+{% block body %}
+<div>
+    <div class='header center text-center'>
+        <h1><br>Yammy SPAM~!</h1><br>
+    </div>
+    <div class='login_box'>
+        <form name="login" action="{% url 'user_register' %}" method="post">
+            {% csrf_token %}
+            <div>
+                <label><h2>회원가입</h2></label>
+            </div>
+
+            <div>
+                <label><p>Email</p></label>
+                <input type="text" name="email" value="" />
+            </div>
+
+            <div>
+                <label><p>비밀번호</p></label>
+                <input type="password" name="password" value="" />
+            </div>
+
+            <div>
+                <label><p>비밀번호 확인</p></label>
+                <input type="password" name="password" value="" />
+            </div>
+
+            <div>
+                <button type="submit">확인</button>
+            </div>
+        </form>
+    </div>
+    <div class='center'>
+        <p><a href="{% url 'sign_in' %}">처음으로</a></p>
+    </div>
+</div>
+{% endblock %}
