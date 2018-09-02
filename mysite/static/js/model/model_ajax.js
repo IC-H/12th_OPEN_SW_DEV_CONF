@@ -1,33 +1,33 @@
 class ModelAjax {
     constructor(url, type='POST') {
-		this.url              = url;
-		this.type             = type;
-		this.dataType         = 'json';
-		this.data             = {};
-		this.successCallBack  = null;
-		this.failureCallBack  = null; 
-		this.httpMethods      = ['POST', 'GET', 'PUT'];
-	}
-	
-	setData(data) {
-	    var obj = {};
-	    if (Array.isArray(data)) {
-	        data.forEach(function(value, index) {
-	            obj[index] = value;
-	        });
-	    } else if (typeof data === 'object') {
-	        obj = data;
-	    }
-	    this.data = obj;
-	}
-	
-	setSuccessCallBack(callback) {
-	    var func = null;
-	    if (typeof callback === 'function') {
-	        func = callback;
-	    }
-	    this.successCallBack = func;
-	}
+        this.url              = url;
+        this.type             = type;
+        this.dataType         = 'json';
+        this.data             = {};
+        this.successCallBack  = null;
+        this.failureCallBack  = null; 
+        this.httpMethods      = ['POST', 'GET', 'PUT'];
+    }
+
+    setData(data) {
+        var obj = {};
+        if (Array.isArray(data)) {
+            data.forEach(function(value, index) {
+                obj[index] = value;
+            });
+        } else if (typeof data === 'object') {
+            obj = data;
+        }
+        this.data = obj;
+    }
+
+    setSuccessCallBack(callback) {
+        var func = null;
+        if (typeof callback === 'function') {
+            func = callback;
+        }
+        this.successCallBack = func;
+    }
     
     setFailureCallBack(callback) {
         var func = null;

@@ -22,12 +22,11 @@
     overflow: hidden;
     margin: 0px 20px;
     background: bisque;
-    /* border: solid 0.1px; */
     cursor: pointer;
 }
 
 .panel:hover, .panel[checked] {
-	background-color: ghostwhite; 
+    background-color: ghostwhite; 
 }
 
 .center {
