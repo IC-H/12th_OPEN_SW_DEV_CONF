@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'common.apps.CommonConfig',
     'notice_url.apps.NoticeUrlConfig',
     'user.apps.UserConfig',
+    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [

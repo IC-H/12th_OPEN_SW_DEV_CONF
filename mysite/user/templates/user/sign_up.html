@@ -1,23 +1,21 @@
-﻿﻿<!DOCTYPE html>
-<html>
-    <head>
-        <title>Yammy SPAM - 회원가입</title>
+﻿{% extends 'common/base.html' %}
 
-        <link rel='stylesheet' href='/static/style/common.css'>
+{% load static %}
 
-        <link rel='stylesheet' href='/static/style/user/login_box.css'>
+{% block stylesheets %}
+    <link rel='stylesheet' href='/static/style/user/login_box.css'>
+{% endblock %}
 
-    </head>
-    <body>
+{% block title %}Yammy SPAM - 회원가입{% endblock %}
 
+{% block body %}
 <div>
     <div class='header center text-center'>
         <h1><br>Yammy SPAM~!</h1><br>
     </div>
-
-
     <div class='login_box'>
-        <form name="login" action="URL" method="post">
+        <form name="login" action="{% url 'user_register' %}" method="post">
+            {% csrf_token %}
             <div>
                 <label><h2>회원가입</h2></label>
             </div>
@@ -42,11 +40,8 @@
             </div>
         </form>
     </div>
-
     <div class='center'>
         <p><a href="../sign_in/">처음으로</a></p>
     </div>
 </div>
-
-    </body>
-</html>
+{% endblock %}
