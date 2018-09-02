@@ -12,6 +12,19 @@ class DomainUrl(models.Model):
     domain  = models.ForeignKey(DomainMst, on_delete=models.CASCADE)
     url     = models.CharField(max_length=255)
 
+    def find_all_with_domain():
+        domain_list = []
+        for domain_data in DomainMst.objects.all():
+            url_list = []
+            for url_data in DomainUrl.objects.filter(domain__exact=domain_data.id):
+                url_list.append(url_data.url)
+            data = {
+                'domain'    : domain_data.domain,
+                'url_list'  : url_list
+            }
+            domain_list.append(data)
+        return domain_list
+
     class Meta:
         managed = False
         db_table = 'domain_url'
