@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block stylesheets %}
-    <link rel='stylesheet' href='/static/style/user/login_box.css'>
+    <link rel='stylesheet' href='{% static "style/user/login_box.css" %}'>
 {% endblock %}
 
 {% block title %}Yammy SPAM - 회원가입{% endblock %}
@@ -41,7 +41,7 @@
         </form>
     </div>
     <div class='center'>
-        <p><a href="../sign_in/">처음으로</a></p>
+        <p><a href="{% url 'sign_in' %}">처음으로</a></p>
     </div>
 </div>
 {% endblock %}

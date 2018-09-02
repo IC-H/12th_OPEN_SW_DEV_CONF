@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block stylesheets %}
-     <link rel='stylesheet' href='/static/style/user/login_box.css'>
+    <link rel='stylesheet' href='{% static "style/user/login_box.css" %}'>
 {% endblock %}
 
 {% block title %}Yammy SPAM - 맞춤형 알람 서비스{% endblock %}
@@ -39,7 +39,7 @@
         </form>
     </div>
     <div class='center'>
-        <p><a href="../sign_up/">혹시 처음이신가요?</a></p>
+        <p><a href="{% url 'sign_up' %}">혹시 처음이신가요?</a></p>
     </div>
 </div>
 {% endblock %}
