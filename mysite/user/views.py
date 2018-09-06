@@ -16,7 +16,6 @@ class sign_in(LoginView):
     form_class = AuthenticationForm
     settings.LOGIN_REDIRECT_URL = reverse_lazy('url_list')
 
-
     def form_valid(self, form):
         """Security check complete. Log the user in."""
         Auth.login(self.request, form.get_user())
