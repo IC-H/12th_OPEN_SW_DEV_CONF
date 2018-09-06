@@ -1,0 +1,11 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+
+<form method="post" action="{% url 'sign_up' %}">
+{% csrf_token %}
+{{ form.as_p }}
+<button type="submit">회원가입</button>
+</form>
+
+{% endblock %}
