@@ -1,7 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
-from django.urls import reverse
-from urllib.parse import urlparse, urlunparse
+from django.urls import reverse, reverse_lazy
 
 from django.conf import settings
 # Avoid shadowing the login() and logout() views below.
@@ -17,12 +16,11 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic.edit import FormView
-from .forms import AuthenticationForm
+from .forms import AuthenticationForm, UserCreationForm
+
+from django.views.generic.edit import CreateView
 
 # Create your views here.
-
-def sign_up(request):
-    return render(request, 'user/sign_up.html')
 
 
 class SuccessURLAllowedHostsMixin:
@@ -32,7 +30,7 @@ class SuccessURLAllowedHostsMixin:
         return {self.request.get_host(), *self.success_url_allowed_hosts}
 
 
-class LoginView(SuccessURLAllowedHostsMixin, FormView):
+class sign_in(SuccessURLAllowedHostsMixin, FormView):
     """
     Display the login form and handle the login action.
     """
@@ -97,3 +95,10 @@ class LoginView(SuccessURLAllowedHostsMixin, FormView):
             **(self.extra_context or {})
         })
         return context
+
+
+
+class sign_up(CreateView):
+    template_name = 'user/sign_up.html'
+    form_class = UserCreationForm 
+    success_url = reverse_lazy('sign_in')

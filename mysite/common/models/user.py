@@ -10,10 +10,10 @@ from django.db import models
 
 class User(models.Model):
     email       = models.CharField(unique=True, max_length=50)
-    password    = models.CharField(max_length=32)
+    password    = models.CharField(max_length=128)
     created_at  = models.DateTimeField()
-    updated_at  = models.DateTimeField(null=True)
-    deleted_at  = models.DateTimeField(null=True)
+    updated_at  = models.DateTimeField(null=True, blank=True)
+    deleted_at  = models.DateTimeField(null=True, blank=True)
 
     class Meta(object):
         managed = False
