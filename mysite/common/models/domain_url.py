@@ -13,6 +13,32 @@ class DomainUrl(models.Model):
     url     = models.CharField(max_length=255)
 
     @staticmethod
+    def find_all_with_domain_contains_keywords(domain_key='', url_key='', connector='OR'):
+        # Validate input type
+        if not isinstance(domain_key, str):
+            raise TypeError('domain_key has to be string')
+        if not isinstance(url_key, str):
+            raise TypeError('url_key has to be string')
+        if connector not in ['AND', 'OR']:
+            raise TypeError('connector has to be "AND" OR "OR"')
+        
+        domain_obj_list = DomainUrl.objects.all().select_related()
+        Q_list          = []
+        if domain_key != '':
+            Q_list.append(models.Q(domain__domain__contains=domain_key))
+            
+        if url_key != '':
+            Q_list.append(models.Q(url__contains=url_key))
+        
+        if len(Q_list) > 0:
+            Q_factor = models.Q()
+            for Q in Q_list:
+                Q_factor = Q_factor._combine(Q, connector)
+            domain_obj_list = domain_obj_list.filter(Q_factor)
+        
+        return domain_obj_list
+
+    @staticmethod
     def find_all_with_domain():
         domain_list     = {}
         domain_obj_list = DomainUrl.objects.all().select_related()
