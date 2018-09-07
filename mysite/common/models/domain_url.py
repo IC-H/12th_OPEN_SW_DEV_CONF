@@ -39,9 +39,13 @@ class DomainUrl(models.Model):
         return domain_obj_list
 
     @staticmethod
-    def find_all_with_domain():
+    def find_all_with_domain(key_word=''):
+        # Validate input type
+        if not isinstance(key_word, str):
+            raise TypeError('key_word has to be string')
+        
         domain_list     = {}
-        domain_obj_list = DomainUrl.objects.all().select_related()
+        domain_obj_list = DomainUrl.find_all_with_domain_contains_keywords(key_word, key_word)
         
         for obj in domain_obj_list:
             if obj.domain_id in domain_list:
