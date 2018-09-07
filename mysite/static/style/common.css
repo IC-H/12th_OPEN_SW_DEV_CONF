@@ -38,3 +38,7 @@
 .text-center {
     text-align: -webkit-center;
 }
+
+.hidden {
+    display : none;
+}
