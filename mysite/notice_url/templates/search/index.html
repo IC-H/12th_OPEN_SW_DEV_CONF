@@ -37,7 +37,10 @@
         {% for domain_id, domain_data in domain_list.items %}
             {% include 'common/accordion.html' with title=domain_data.domain item_list=domain_data.url_list %}
         {% endfor %}
-        <div>
+    </div>
+    <div class='hidden'>
+        <div id='hidden-accordion'>
+            {% include 'common/accordion.html' %}
         </div>
     </div>
 </div>
