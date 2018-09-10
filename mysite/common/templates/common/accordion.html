@@ -1,10 +1,8 @@
 <div class='accordion-row'>
-    <div class='accordion' onclick='{{ accordion_click_callback|default:"CommonJs.accordionClickEvent(this);" }}'><p>{{ title|default:'title' }}</p></div>
-    {% if item_list|length > 0 %}
-        {% for item in item_list %}
-            <div class='panel' onclick='{{ panel_click_calback|default:"CommonJs.accordionPanelClickEvent(this);" }}'><p>{{ item }}</p></div>
-        {% endfor %}
-    {% else %}
-        <div class='panel' onclick='{{ panel_click_calback|default:"CommonJs.accordionPanelClickEvent(this);" }}'><p>item</p></div>
-    {% endif %}
+    <div class='accordion' onclick='{{ accordion_click_callback|default:"CommonJs.accordionClickEvent(this);" }}' data-key='{{ title_key }}'><p>{{ title|default:'title' }}</p></div>
+    {% for item_key, item in item_list.items %}
+        <div class='panel' onclick='{{ panel_click_calback|default:"CommonJs.accordionPanelClickEvent(this);" }}' data-key='{{ item_key }}' {% if checked|default:False %}checked='checked'{% endif %}><p>{{ item }}</p></div>
+    {% empty %}
+        <div class='panel' onclick='{{ panel_click_calback|default:"CommonJs.accordionPanelClickEvent(this);" }}' data-key='' {% if checked|default:False %}checked='checked'{% endif %}><p>item</p></div>
+    {% endfor %}
 </div>

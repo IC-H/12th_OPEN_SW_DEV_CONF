@@ -42,3 +42,9 @@
 .hidden {
     display : none;
 }
+
+.main.btn {
+    width: 100px;
+    height: 30px;
+    margin: 20px;
+}
