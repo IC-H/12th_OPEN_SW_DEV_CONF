@@ -16,4 +16,4 @@ class UserUrl(models.Model):
     class Meta:
         managed = False
         db_table = 'user_url'
-        unique_together = (('user_id', 'url_id'),)
+        unique_together = (('user', 'url'),)
