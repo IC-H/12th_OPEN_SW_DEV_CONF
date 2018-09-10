@@ -8,24 +8,27 @@ NoticeUlrJsObj = {
            csrfmiddlewaretoken : $('input[name="csrfmiddlewaretoken"]').val()
         });
         searchModel.setSuccessCallBack(function(data) {
-           var accordionHtml = $('#hidden-accordion .accordion-row');
-           var panelHtml     = accordionHtml.find('.panel');
            var urlListHtml   = $('.url-list');
            var domainList    = data.domain_list;
-           urlListHtml.find('.accordion-row').remove();
+           urlListHtml.find('.accordion-row').hide();
+           urlListHtml.find('.panel').hide();
            $.each(domainList, function(key, value) {
-               tmpAccordion = accordionHtml.clone();
-               tmpAccordion.find('.panel').remove();
-               tmpAccordion.find('.accordion p').text(value.domain);
-               value.url_list.forEach(function(url) {
-                   tmpPanel     = panelHtml.clone();
-                   tmpPanel.find('p').text(url);
-                   tmpAccordion.append(tmpPanel);
+               var tmpAccordion = urlListHtml.find('.accordion-row p:contains(' + value.domain + ')').parents('.accordion-row');
+               tmpAccordion.show();
+               $.each(value.url_list, function(key, url) {
+                   tmpAccordion.find('.panel p:contains(' + url + ')').parents('.panel').show();
                });
-               urlListHtml.append(tmpAccordion);
            });
-           
         });
         CommonJs.ajax(searchModel);
     },
+    submitToUrlRegister : function(event) {
+        event.preventDefault();
+        var formObj     = $('#notice-search-form');
+        var checkedList = $('.accordion-row .panel[checked="checked"]');
+        checkedList.each(function(key, element) {
+            formObj.append('<input type="hidden" name="url_id_list[]" value="' + $(element).data('key') + '"/>');
+        });
+        formObj.submit();
+    }
 };
