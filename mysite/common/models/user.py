@@ -6,8 +6,9 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
 from datetime import datetime
+from django.utils.crypto import salted_hmac
 
 
 class User(models.Model):
@@ -17,12 +18,21 @@ class User(models.Model):
     updated_at  = models.DateTimeField(null=True, blank=True)
     deleted_at  = models.DateTimeField(null=True, blank=True)
 
+    EMAIL_FIELD = 'email'
+
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
         self._password = raw_password
 
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.password)
+
     def set_datetime(self):
         self.created_at = datetime.now()
+
+    def get_session_auth_hash(self):
+        key_salt = "django.contrib.auth.models.AbstractBaseUser.get_session_auth_hash"
+        return salted_hmac(key_salt, self.password).hexdigest()
 
     class Meta(object):
         managed = False

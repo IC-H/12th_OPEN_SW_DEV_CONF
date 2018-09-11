@@ -1,9 +1,9 @@
 import unicodedata
 from django.conf import settings
 from django import forms
-from django.contrib.auth import authenticate
-from common.models.user import User
-from django.utils.translation import gettext, gettext_lazy as _
+from user.auth import Auth
+from common.models import User
+from django.contrib.auth.hashers import check_password
 
 
 class EmailField(forms.CharField):
@@ -17,15 +17,15 @@ class UserCreationForm(forms.ModelForm):
     password.
     """
     error_messages = {
-        'password_mismatch': _("비밀번호가 일치하지 않습니다."),
+        'password_mismatch': "비밀번호가 일치하지 않습니다.",
     }
     password1 = forms.CharField(
-        label = _("비밀번호"),
+        label = "비밀번호",
         strip = False,
         widget = forms.PasswordInput,
     )
     password2 = forms.CharField(
-        label = _("비밀번호 확인"),
+        label = "비밀번호 확인",
         widget = forms.PasswordInput,
         strip = False,
     )
@@ -64,14 +64,15 @@ class AuthenticationForm(forms.Form):
     """
     email = EmailField(
         widget = forms.TextInput(attrs={'autofocus': True}), 
-        label = _("Email"),)
+        label = "Email"
+        )
     password = forms.CharField(
-        label = _("비밀번호"),
+        label = "비밀번호",
         strip = False,
         widget = forms.PasswordInput,
-    )
+        )
     error_messages = {
-        'invalid_login': _("이메일와 비밀번호를 다시 확인해 주십시오."),
+        'invalid_login': "이메일와 비밀번호를 다시 확인해 주십시오.",
     }
 
     def __init__(self, request = None, *args, **kwargs):
@@ -80,16 +81,17 @@ class AuthenticationForm(forms.Form):
         super().__init__(*args, **kwargs)
 
     def clean(self):
-        email = self.cleaned_data.get('email')   
+        email = self.cleaned_data.get('email')
         password = self.cleaned_data.get('password')   ### 이메일과 비밀번호를 받음
 
         if email is not None and password:
-            self.user_cache = authenticate(self.request, username = email, password = password)
-            ### authenticate() : username, password를 받아서 인증되면 객체 반환, 아니면 None반환
+            self.user_cache = Auth.authenticate(self.request, email = email, password = password)
             if self.user_cache is None:
                 raise forms.ValidationError(
                     self.error_messages['invalid_login'],
-                    code = 'invalid_login',)
+                    code = 'invalid_login',
+                    )
+            print('return')
             return self.cleaned_data
 
     def get_user(self):
