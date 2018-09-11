@@ -5,25 +5,10 @@ class registerView(ListView):
     template_name = 'user/url/register.html'
     
     def get_queryset(self):
+        # TODO log-in function
+        user = User(pk=1)
         url_id_list = self.request.POST.getlist('url_id_list[]')
-        data = {
-            'added_domain_list' : {
-                2 : {
-                    'domain'    : 'www.cau.ac.kr',
-                    'url_list'  : {
-                        3 : "www.cau.ac.kr/01_intro/status/status10_list.php"
-                    },
-                },
-            },
-            'deleted_domain_list' : {
-                2 : {
-                    'domain'    : 'www.cau.ac.kr',
-                    'url_list'  : {
-                        2 : "www.cau.ac.kr/04_ulife/causquare/notice/notice_list.php",
-                    },
-                },
-            }
-        }
+        data = UserUrl.get_diff_from_user_choices(user.id, url_id_list)
         return data
 
     def post(self, request, *args, **kwargs):
