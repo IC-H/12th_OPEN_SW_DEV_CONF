@@ -6,7 +6,7 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
-from common.models.domain_mst import DomainMst
+from common.models import DomainMst
 
 class DomainUrl(models.Model):
     domain  = models.ForeignKey(DomainMst, on_delete=models.CASCADE)

@@ -1,4 +1,5 @@
 from django.views.generic.list import ListView
+from common.models import User, UserUrl
 
 class registerView(ListView):
     template_name = 'user/url/register.html'
