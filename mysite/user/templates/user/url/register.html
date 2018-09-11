@@ -1,0 +1,44 @@
+{% extends 'common/base.html' %}
+
+{% block title %}USER URL REGISTER{% endblock %}
+
+{% load static %}
+
+{% block javascripts %}
+    <script type='text/javascript' src='{% static "js/common.js" %}'></script>
+    <script type='text/javascript' src='{% static "js/model/model_ajax.js" %}'></script>
+    <script type='text/javascript' src='{% static "js/utils/strings.js" %}'></script>
+    <script type='text/javascript' src='{% static "js/notice_url/notice_url.js" %}'></script>
+{% endblock %}
+
+{% block body %}
+<div>
+    <div class='header center text-center'>
+        <h1>Please check what you choose, before you register it</h1>
+    </div>
+    <form action='{% url "user_url_register" %}' method='POST'>
+        {% csrf_token %}
+        <div class='check-list add'>
+            <div class='center text-center'>
+                <h2>Below list will be added</h2>
+            </div>
+            {% for domain_id, domain_data in object_list.added_domain_list.items %}
+                {% include 'common/accordion.html' with title=domain_data.domain item_list=domain_data.url_list panel_click_calback='return false;' checked=True %}
+                {% for id, url in domain_data.url_list.items %}{% include 'common/element/hidden_input.html' with name='added_url_id_list[]' value=id %}{% endfor %}
+            {% endfor %}
+        </div>
+        <div class='check-list delete'>
+            <div class='center text-center'>
+                <h2>Below list will be deleted</h2>
+            </div>
+            {% for domain_id, domain_data in object_list.deleted_domain_list.items %}
+                {% include 'common/accordion.html' with title=domain_data.domain item_list=domain_data.url_list panel_click_calback='return false;' checked=True %}
+                {% for id, url in domain_data.url_list.items %}{% include 'common/element/hidden_input.html' with name='deleted_url_id_list[]' value=id %}{% endfor %}
+            {% endfor %}
+        </div>
+        <div class='center'>
+            <input type='submit' class='main btn' value='Register It' />
+        </div>
+    </form>
+</div>
+{% endblock %}
