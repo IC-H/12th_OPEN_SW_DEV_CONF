@@ -18,7 +18,7 @@ class UserUrl(models.Model):
         managed = False
         db_table = 'user_url'
         unique_together = (('user', 'url'),)
-    
+
     @staticmethod
     def get_diff_query_set_from_user_choices(user_id, url_id_list):
         """
