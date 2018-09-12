@@ -1,5 +1,5 @@
 from django.views.generic.list import ListView
-from common.models.domain_url import DomainUrl
+from common.models import DomainUrl
 
 class searchView(ListView):
     template_name = 'search/index.html'
