@@ -20,7 +20,11 @@ class UserUrl(models.Model):
         unique_together = (('user', 'url'),)
     
     @staticmethod
-    def get_diff_from_user_choices(user_id, url_id_list):
+    def get_diff_query_set_from_user_choices(user_id, url_id_list):
+        """
+        Get a difference between user's url_id which gotten from user_id and url_id_list.
+        This method return query_set of DomainUrl that will be added or deleted
+        """
         try:
             # validate and make user_id's type integer
             user_id = int(user_id)
@@ -32,14 +36,8 @@ class UserUrl(models.Model):
         except TypeError:
             raise ValidationError('url_id_list has to be list with numerous items')
         
-        current_registered_query_set = UserUrl.objects.filter(user__id__exact=user_id)
-        # data list will be added
-        added_data      = {}
-        # data list will be deleted
-        deleted_data    = {}
-        
         current_registered_data_list    = {}
-        for user_url_obj in current_registered_query_set:
+        for user_url_obj in UserUrl.objects.filter(user__id__exact=user_id):
             current_registered_data_list[user_url_obj.url_id] = user_url_obj
         
         for index, url_id in copy(url_id_list).items():
@@ -52,6 +50,6 @@ class UserUrl(models.Model):
         deleted_query_set = DomainUrl.objects.filter(pk__in=current_registered_data_list.keys()).select_related()
         
         return {
-            'added_domain_list'     : DomainUrl.get_dict_type_domain_url_list(added_query_set),
-            'deleted_domain_list'   : DomainUrl.get_dict_type_domain_url_list(deleted_query_set)
+            'added_query_set'   : added_query_set,
+            'deleted_query_set' : deleted_query_set
         }
