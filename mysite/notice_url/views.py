@@ -1,10 +1,9 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.views.generic.list import ListView
 from common.models.domain_url import DomainUrl
 
-def search(request):
-    domain_list = DomainUrl.find_all_with_domain()
-    data = {
-        'domain_list' : domain_list
-    }
-    return render(request, 'search/index.html', data)
+class searchView(ListView):
+    template_name = 'search/index.html'
+    context_object_name = 'domain_list'
+    
+    def get_queryset(self):
+        return DomainUrl.find_all_with_domain()

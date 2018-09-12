@@ -49,11 +49,11 @@ class DomainUrl(models.Model):
         
         for obj in domain_obj_list:
             if obj.domain_id in domain_list:
-                domain_list[obj.domain_id]['url_list'].append(obj.url)
+                domain_list[obj.domain_id]['url_list'][obj.id] = obj.url
             else:
                 domain_list[obj.domain_id] = {
                     'domain'    : obj.domain.domain,
-                    'url_list'  : [obj.url]
+                    'url_list'  : {obj.id : obj.url}
                 }
                 
         return domain_list

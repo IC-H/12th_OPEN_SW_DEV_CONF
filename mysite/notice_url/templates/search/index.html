@@ -17,31 +17,33 @@
 
 {% block body %}
 <div>
-    <div class='header center text-center'>
-        <h1>You can search noticable url you want!</h1>
-    </div>
-    <div class='search center'>
-        <input
-            type='text'
-            id='key-words'
-            class='text-center'
-            name='key-words'
-            placeholder='Type keywords'
-            onkeyup='NoticeUlrJsObj.searchAjax();'
-            val=''
-            data-url='{"request":"{% url 'search_ajax' %}"}'
-        />
-        {% csrf_token %}
-    </div>
-    <div class='url-list'>
-        {% for domain_id, domain_data in domain_list.items %}
-            {% include 'common/accordion.html' with title=domain_data.domain item_list=domain_data.url_list %}
-        {% endfor %}
-    </div>
-    <div class='hidden'>
-        <div id='hidden-accordion'>
-            {% include 'common/accordion.html' %}
+    <form action='{% url 'url_register' %}' method='POST' id='notice-search-form'>
+        <div class='header center text-center'>
+            <h1>You can search noticable url you want!</h1>
         </div>
-    </div>
+        <div class='search center'>
+            <input
+                type='text'
+                id='key-words'
+                class='text-center'
+                name='key-words'
+                placeholder='Type keywords'
+                onkeyup='NoticeUlrJsObj.searchAjax();'
+                val=''
+                data-url='{"request":"{% url 'search_ajax' %}"}'
+            />
+            {% csrf_token %}
+        </div>
+        <div class='url-list'>
+            {% for domain_id, domain_data in domain_list.items %}
+                {% include 'common/accordion.html' with title=domain_data.domain title_key=domain_id item_list=domain_data.url_list %}
+            {% endfor %}
+        </div>
+        <div class='center'>
+            <button class='main btn' onclick='NoticeUlrJsObj.submitToUrlRegister(event)'>Check It</button>
+        </div>
+        <div class='hidden'>
+        </div>
+    </form>
 </div>
 {% endblock %}
