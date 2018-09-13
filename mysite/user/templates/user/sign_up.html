@@ -14,30 +14,13 @@
         <h1><br>Yammy SPAM~!</h1><br>
     </div>
     <div class='login_box'>
-        <form name="login" action="{% url 'user_register' %}" method="post">
-            {% csrf_token %}
+        <form method="post" action="{% url 'sign_up' %}">
+            {% csrf_token %} 
             <div>
                 <label><h2>회원가입</h2></label>
             </div>
-
-            <div>
-                <label><p>Email</p></label>
-                <input type="text" name="email" value="" />
-            </div>
-
-            <div>
-                <label><p>비밀번호</p></label>
-                <input type="password" name="password" value="" />
-            </div>
-
-            <div>
-                <label><p>비밀번호 확인</p></label>
-                <input type="password" name="password" value="" />
-            </div>
-
-            <div>
-                <button type="submit">확인</button>
-            </div>
+            {{ form.as_p }}
+            <button type="submit">회원가입</button>
         </form>
     </div>
     <div class='center'>
