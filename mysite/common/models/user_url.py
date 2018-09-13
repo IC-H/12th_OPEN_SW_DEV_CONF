@@ -46,7 +46,7 @@ class UserUrl(models.Model):
                 del url_id_list[index]
                 del current_registered_data_list[url_id]
         
-        added_query_set = DomainUrl.objects.filter(pk__in=url_id_list).select_related()
+        added_query_set = DomainUrl.objects.filter(pk__in=list(url_id_list.values())).select_related()
         deleted_query_set = DomainUrl.objects.filter(pk__in=current_registered_data_list.keys()).select_related()
         
         return {
