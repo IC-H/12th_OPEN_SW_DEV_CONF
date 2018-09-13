@@ -84,14 +84,13 @@ class AuthenticationForm(forms.Form):
         email = self.cleaned_data.get('email')
         password = self.cleaned_data.get('password')   ### 이메일과 비밀번호를 받음
 
-        if email is not None and password:
+        if email is not None and password is not None:
             self.user_cache = Auth.authenticate(self.request, email = email, password = password)
             if self.user_cache is None:
                 raise forms.ValidationError(
                     self.error_messages['invalid_login'],
                     code = 'invalid_login',
                     )
-            print('return')
             return self.cleaned_data
 
     def get_user(self):

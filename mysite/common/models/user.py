@@ -15,8 +15,8 @@ class User(models.Model):
     email       = models.CharField(unique=True, max_length=50)
     password    = models.CharField(max_length=128)
     created_at  = models.DateTimeField()
-    updated_at  = models.DateTimeField(null=True, blank=True)
-    deleted_at  = models.DateTimeField(null=True, blank=True)
+    updated_at  = models.DateTimeField(null=True)
+    deleted_at  = models.DateTimeField(null=True)
 
     EMAIL_FIELD = 'email'
 
@@ -31,6 +31,7 @@ class User(models.Model):
         self.created_at = datetime.now()
 
     def get_session_auth_hash(self):
+        ### Todo : Consider proper string key salt ( # 39 )
         key_salt = "django.contrib.auth.models.AbstractBaseUser.get_session_auth_hash"
         return salted_hmac(key_salt, self.password).hexdigest()
 

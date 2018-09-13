@@ -40,7 +40,6 @@ class Auth:
             email = kwargs.get(User.EMAIL_FIELD)
         try:
             user = User.objects.filter(email__exact=email).get()
-            print(user)
         except User.DoesNotExist:
             # Run the default password hasher once to reduce the timing
             # difference between an existing and a nonexistent user (#20760).
@@ -78,7 +77,7 @@ class Auth:
         except AttributeError:
             backends = _get_backends(return_tuples=True)
             if len(backends) == 1:
-                _, backend = backends[0]
+                backend, backend_path = backends[0]
             else:
                 raise ValueError(
                     'You have multiple authentication backends configured and '
@@ -86,11 +85,11 @@ class Auth:
                     '`backend` attribute on the user.'
                 )
         else:
-            if not isinstance(backend, str):
-                raise TypeError('backend must be a dotted import path string (got %r).' % backend)
+            if not isinstance(backend_path, str):
+                raise TypeError('backend must be a dotted import path string (got %r).' % backend_path)
 
         request.session[SESSION_KEY] = user._meta.pk.value_to_string(user)
-        request.session[BACKEND_SESSION_KEY] = backend
+        request.session[BACKEND_SESSION_KEY] = backend_path
         request.session[HASH_SESSION_KEY] = session_auth_hash
         if hasattr(request, 'user'):
             request.user = user
