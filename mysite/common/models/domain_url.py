@@ -6,7 +6,8 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
-from common.models.domain_mst import DomainMst
+from common.models import DomainMst
+from django.core.exceptions import ValidationError
 
 class DomainUrl(models.Model):
     domain  = models.ForeignKey(DomainMst, on_delete=models.CASCADE)
@@ -39,25 +40,35 @@ class DomainUrl(models.Model):
         return domain_obj_list
 
     @staticmethod
+    def get_dict_type_domain_url_list(query_set):
+        if not isinstance(query_set, models.QuerySet):
+            raise TypeError('query_set has to be instance of QuerySet')
+        try:
+            domain_list     = {}
+            for obj in query_set:
+                if obj.domain_id in domain_list:
+                    domain_list[obj.domain_id]['url_list'][obj.id] = obj.url
+                else:
+                    domain_list[obj.domain_id] = {
+                        'domain'    : obj.domain.domain,
+                        'url_list'  : {obj.id : obj.url}
+                    }
+        except (AttributeError, TypeError):
+            raise ValidationError('query_set has to be QuerySet with DomainUrl instances')
+                
+        return domain_list
+
+    @staticmethod
     def find_all_with_domain(key_word=''):
         # Validate input type
         if not isinstance(key_word, str):
             raise TypeError('key_word has to be string')
         
-        domain_list     = {}
-        domain_obj_list = DomainUrl.find_all_with_domain_contains_keywords(key_word, key_word)
-        
-        for obj in domain_obj_list:
-            if obj.domain_id in domain_list:
-                domain_list[obj.domain_id]['url_list'][obj.id] = obj.url
-            else:
-                domain_list[obj.domain_id] = {
-                    'domain'    : obj.domain.domain,
-                    'url_list'  : {obj.id : obj.url}
-                }
+        domain_query_set = DomainUrl.find_all_with_domain_contains_keywords(key_word, key_word)
                 
-        return domain_list
+        return DomainUrl.get_dict_type_domain_url_list(domain_query_set)
 
     class Meta:
         managed = False
         db_table = 'domain_url'
+   
