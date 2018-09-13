@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> [USER 로그인폼] User모델과 연동 마무리
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -26,18 +22,11 @@ class sign_in(LoginView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-    def form_valid(self, form):
-        """Security check complete. Log the user in."""
-        Auth.login(self.request, form.get_user())
-        return HttpResponseRedirect(self.get_success_url())
-
-
 class sign_up(CreateView):
     template_name = 'user/sign_up.html'
     form_class = UserCreationForm 
     success_url = reverse_lazy('sign_in')
 
-<<<<<<< HEAD
 
 def url_list(request):
     return render(request, '')
@@ -56,7 +45,3 @@ def redirect_to_login(next, login_url=None, redirect_field_name=REDIRECT_FIELD_N
         login_url_parts[4] = querystring.urlencode(safe='/')
 
     return HttpResponseRedirect(urlunparse(login_url_parts))
-=======
-def url_list(request):
-    return render(request, '')
->>>>>>> [USER 로그인폼] User모델과 연동 마무리

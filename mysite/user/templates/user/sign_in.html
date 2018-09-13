@@ -23,6 +23,7 @@
                 <label><h2>Log In</h2></label>
             </div>
             {{ form.as_p }}
+                <input type="hidden" name="next" value="{{ next }}">
             <div>
                 <button type="submit">로그인</button>
             </div>
