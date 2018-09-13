@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from common.models.domain_url import DomainUrl
+from common.models import DomainUrl
 
 def search(request):
     key_word    = request.POST.get('keyWrods', '')
