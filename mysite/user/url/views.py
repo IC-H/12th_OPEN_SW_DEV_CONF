@@ -1,4 +1,7 @@
 from django.views.generic.list import ListView
+from django.urls import reverse_lazy
+from django.contrib import messages
+from django.shortcuts import redirect
 from common.models import User, UserUrl, DomainUrl
 
 class registerView(ListView):
@@ -16,3 +19,25 @@ class registerView(ListView):
 
     def post(self, request, *args, **kwargs):
         return self.get(self, request, *args, **kwargs)
+
+class UrlListView(ListView):
+    template_name = 'user/url/list.html'
+    
+    def dispatch(self, request, *args, **kwargs):
+        # TODO log-in function
+        try:
+            user = User.objects.filter(pk__exact=1).get()
+        except User.DoesNotExist:
+            messages.add_message(request, messages.ERROR, 'Please Log In')
+            return redirect(reverse_lazy('sign_in'))
+        self.user = user
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_queryset(self):
+        user_url_query_set  = UserUrl.objects.filter(user__id__exact=self.user.id)
+        url_id_list         = [obj.url_id for obj in user_url_query_set]
+        query_set_list      = DomainUrl.objects.filter(pk__in=url_id_list).select_related()
+        
+        return {
+            'domain_list' : DomainUrl.get_dict_type_domain_url_list(query_set_list)
+        }
