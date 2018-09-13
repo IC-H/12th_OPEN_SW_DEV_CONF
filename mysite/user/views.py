@@ -27,11 +27,6 @@ class sign_up(CreateView):
     form_class = UserCreationForm 
     success_url = reverse_lazy('sign_in')
 
-
-def url_list(request):
-    return render(request, '')
-
-
 def redirect_to_login(next, login_url=None, redirect_field_name=REDIRECT_FIELD_NAME):
     """
     Redirect the user to the login page, passing the given 'next' page.
