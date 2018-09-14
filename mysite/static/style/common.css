@@ -48,3 +48,44 @@
     height: 30px;
     margin: 20px;
 }
+
+div.flash-message-block {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    
+}
+
+ul.messages {
+    line-height: 40px;
+    border: solid 1px;
+    text-align: center;
+    padding: 0px;
+    width: 450px;
+}
+
+li.success {
+    list-style-type: none;
+    background-color: turquoise;
+}
+
+li.info {
+    list-style-type: none;
+    background-color: lime;
+}
+
+li.warning {
+    list-style-type: none;
+    background-color: antiquewhite;
+}
+
+li.error {
+    list-style-type: none;
+    background-color: orangered;
+}
+
+li.debug {
+    list-style-type: none;
+    background-color: white;
+}
