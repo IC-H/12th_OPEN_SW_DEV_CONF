@@ -6,9 +6,9 @@ from common.models import User, UserUrl, DomainUrl
 
 @transaction.atomic
 def url_register(request):
-    # TODO get user from session
     try:
-        user = User.objects.filter(pk__exact=1).get()
+        user_pk = int(request.session['_auth_email_id'])
+        user = User.objects.filter(pk__exact=user_pk).get()
     except User.DoesNotExist:
         messages.add_message(request, messages.ERROR, 'Please Log In')
         return redirect(reverse_lazy('sign_in'))

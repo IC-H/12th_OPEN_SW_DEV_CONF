@@ -8,8 +8,12 @@ class registerView(ListView):
     template_name = 'user/url/register.html'
     
     def get_queryset(self):
-        # TODO log-in function
-        user = User(pk=1)
+        try:
+            user_pk = int(self.request.session['_auth_email_id'])
+            user = User(pk=user_pk)
+        except User.DoesNotExist:
+            messages.add_message(request, messages.ERROR, 'Please Log In')
+            return redirect(reverse_lazy('sign_in')) 
         url_id_list = self.request.POST.getlist('url_id_list[]')
         query_set_list = UserUrl.get_diff_query_set_from_user_choices(user.id, url_id_list)
         return {
@@ -24,9 +28,9 @@ class UrlListView(ListView):
     template_name = 'user/url/list.html'
     
     def dispatch(self, request, *args, **kwargs):
-        # TODO log-in function
         try:
-            user = User.objects.filter(pk__exact=1).get()
+            user_pk = int(request.session['_auth_email_id'])
+            user = User.objects.filter(pk__exact=user_pk).get()
         except User.DoesNotExist:
             messages.add_message(request, messages.ERROR, 'Please Log In')
             return redirect(reverse_lazy('sign_in'))
