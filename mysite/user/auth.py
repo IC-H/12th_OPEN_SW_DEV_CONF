@@ -99,7 +99,7 @@ class Auth:
     @staticmethod
     def get_user(request):
         try:
-            user = User(pk = _get_user_session_key(request))
+            user = User.objects.filter(pk__exact = _get_user_session_key(request)).get()
         except User.DoesNotExist:
             messages.add_message(request, messages.ERROR, 'Please Log In')
             return redirect(reverse_lazy('sign_in'))
