@@ -3,13 +3,13 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.shortcuts import redirect
 from common.models import User, UserUrl, DomainUrl
+from user.auth import Auth
 
 class registerView(ListView):
     template_name = 'user/url/register.html'
     
     def get_queryset(self):
-        # TODO log-in function
-        user = User(pk=1)
+        user = Auth.get_user(self.request)
         url_id_list = self.request.POST.getlist('url_id_list[]')
         query_set_list = UserUrl.get_diff_query_set_from_user_choices(user.id, url_id_list)
         return {
@@ -24,12 +24,7 @@ class UrlListView(ListView):
     template_name = 'user/url/list.html'
     
     def dispatch(self, request, *args, **kwargs):
-        # TODO log-in function
-        try:
-            user = User.objects.filter(pk__exact=1).get()
-        except User.DoesNotExist:
-            messages.add_message(request, messages.ERROR, 'Please Log In')
-            return redirect(reverse_lazy('sign_in'))
+        user = Auth.get_user(request)
         self.user = user
         return super().dispatch(request, *args, **kwargs)
     
