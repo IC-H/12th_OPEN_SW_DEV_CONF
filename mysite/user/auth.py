@@ -96,6 +96,11 @@ class Auth:
         rotate_token(request)
         user_logged_in.send(sender=user.__class__, request=request, user=user)
 
-
-
-
+    @staticmethod
+    def get_user(request):
+        try:
+            user = User(pk = _get_user_session_key(request))
+        except User.DoesNotExist:
+            messages.add_message(request, messages.ERROR, 'Please Log In')
+            return redirect(reverse_lazy('sign_in'))
+        return user

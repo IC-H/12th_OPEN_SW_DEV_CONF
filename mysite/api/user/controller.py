@@ -3,16 +3,11 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.db import DatabaseError, IntegrityError, transaction
 from common.models import User, UserUrl, DomainUrl
+from user.auth import Auth
 
 @transaction.atomic
 def url_register(request):
-    try:
-        user_pk = int(request.session['_auth_email_id'])
-        user = User.objects.filter(pk__exact=user_pk).get()
-    except User.DoesNotExist:
-        messages.add_message(request, messages.ERROR, 'Please Log In')
-        return redirect(reverse_lazy('sign_in'))
-    
+    user = Auth.get_user(request)
     added_url_id_list   = request.POST.getlist('added_url_id_list[]')
     deleted_url_id_list = request.POST.getlist('deleted_url_id_list[]')
     try:
