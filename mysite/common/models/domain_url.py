@@ -10,8 +10,10 @@ from common.models import DomainMst
 from django.core.exceptions import ValidationError
 
 class DomainUrl(models.Model):
-    domain  = models.ForeignKey(DomainMst, on_delete=models.CASCADE)
-    url     = models.CharField(max_length=255)
+    domain      = models.ForeignKey(DomainMst, on_delete=models.CASCADE)
+    url         = models.CharField(max_length=255)
+    is_notice   = models.BooleanField(default=0, db_index=True)
+    has_change  = models.BooleanField(default=0, db_index=True)
 
     @staticmethod
     def find_all_with_domain_contains_keywords(domain_key='', url_key='', connector='OR'):
@@ -71,4 +73,7 @@ class DomainUrl(models.Model):
     class Meta:
         managed = False
         db_table = 'domain_url'
-   
+        indexes = [
+            models.Index(fields=['is_notice'], name='is_notice_idx'),
+            models.Index(fields=['has_change'], name='has_change_idx'),
+        ]
