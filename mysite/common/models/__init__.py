@@ -6,8 +6,9 @@ from .lang_mst import LangMst
 from .word import Word
 from .tag import Tag
 from .html_vector import HtmlVector
+from .html_vector_lite import HtmlVectorLite
 
 __all__ = [
     'DomainMst', 'DomainUrl', 'User', 'UserUrl',
-    'LangMst', 'Word', 'Tag', 'HtmlVector',
+    'LangMst', 'Word', 'Tag', 'HtmlVector', 'HtmlVectorLite',
 ]
