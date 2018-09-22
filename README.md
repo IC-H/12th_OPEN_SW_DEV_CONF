@@ -8,3 +8,6 @@ this is 12th Open SW Developer Conference
 * sduo pip3 install -e django/
 * sudo python3 manage.py makemigrations common
 * sudo python3 manage.py migarte
+
+* pip install requests
+* pip install beautifulsoup4
