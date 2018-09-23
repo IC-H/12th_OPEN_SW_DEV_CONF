@@ -1,7 +1,7 @@
 from django.core.exceptions import FieldError, ValidationError
 from django.db.models import Model, QuerySet
 from django.db import transaction, DatabaseError, IntegrityError
-from bs4 import BeautifulSoup
+import requests
 
 class MetaConverter(type):
     def __new__(cls, name, bases, attrs, **kwargs):
@@ -11,7 +11,7 @@ class MetaConverter(type):
         
         new_class = super().__new__(cls, name, bases, attrs, **kwargs)
         '''
-        Set model which be used for vectorize
+        Set model which be used for converter
         '''
         meta = attrs.pop('Meta', None) or getattr(new_class, 'Meta', None)
         if meta is None:
@@ -26,7 +26,7 @@ class MetaConverter(type):
 
 class BaseModelConverter(metaclass=MetaConverter):
     '''
-    convert instance of BeautifulSoup to set of vector_model
+    convert instance of requests.models.Response to set of vector_model
     '''
     def __init__(self):
         self.initialize()
@@ -35,26 +35,27 @@ class BaseModelConverter(metaclass=MetaConverter):
         self.html = None
         self._vector_model_set = []
     
-    def validate_soup(self, soup):
-        if not isinstance(soup, BeautifulSoup):
-            raise TypeError('soup has to be instance of BeautifulSoup')
+    def validate_response(self, response):
+        if not isinstance(response, requests.models.Response):
+            raise TypeError('soup has to be instance of requests.models.Response')
     
     def validate_vector_model(self, model):
         if not isinstance(model, self.vector_model):
             raise TypeError('model has to be instance of vector_model')
     
-    def run(self, soup):
-        self.validate_soup(soup)
-        self.convert(soup)
+    def run(self, response):
+        self.validate_response(response)
+        self.convert(response)
     
     def append_vector_model_set(self, model):
         self.validate_vector_model(model)
         self._vector_model_set.append(model)
     
-    def convert(self, soup):
+    def convert(self, response):
         pass
     
-    def get_vector_model_set(self):
+    @property
+    def vector_model_set(self):
         return self._vector_model_set
     
     @transaction.atomic
