@@ -56,30 +56,8 @@ class BaseModelConverter(metaclass=MetaConverter):
         '''
         domain = re.search(r"((?<=(^http:\/\/))|(?<=^https:\/\/))[^\/]*", response.url).group()
         url = re.search(r"((?<=(^http:\/\/))|(?<=^https:\/\/)).*", response.url).group()
-        try:
-            domain_model = DomainMst.objects.filter(domain__exact=domain).get()
-        except DomainMst.DoesNotExist:
-            try:
-                with transaction.atomic():
-                    domain_model = DomainMst(domain=domain)
-                    domain_model.save()
-            except (DatabaseError, IntegrityError):
-                # For parallel thread
-                # If domain is registerd with another process search one more time
-                domain_model = DomainMst.objects.filter(domain__exact=domain)
-        try:
-            url_model = DomainUrl.objects.filter(url__exact=url).get()
-        except DomainUrl.DoesNotExist:
-            try:
-                with transaction.atomic():
-                    url_model = DomainUrl(domain=domain_model, url=url)
-                    url_model.save()
-            except (DatabaseError, IntegrityError):
-                # For parallel thread
-                # If domain is registerd with another process search one more time
-                url_model = DomainUrl.objects.filter(url__exact=url)
-        self._domain_mst_model = domain_model
-        self._domain_url_model = url_model
+        self._domain_mst_model = DomainMst.find_by_domain_with_out_fail(domain)
+        self._domain_url_model = DomainUrl.find_by_url_with_out_fail(url)
     
     @property
     def domain_url_model(self):
