@@ -34,7 +34,6 @@ class BaseModelConverter(metaclass=MetaConverter):
         self.initialize()
     
     def initialize(self):
-        self.html = None
         self._domain_url_model = None
         self._domain_mst_model = None
         self._vector_model_set = []
@@ -68,6 +67,7 @@ class BaseModelConverter(metaclass=MetaConverter):
         return self._domain_mst_model
     
     def run(self, response):
+        self.initialize()
         self.validate_response(response)
         self.identify_url(response)
         self.convert(response)
