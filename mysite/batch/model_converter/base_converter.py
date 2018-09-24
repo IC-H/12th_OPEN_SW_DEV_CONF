@@ -86,5 +86,5 @@ class BaseModelConverter(metaclass=MetaConverter):
     @transaction.atomic
     def save_model_set(self):
         with transaction.atomic():
-            for model in self.get_vector_model_set():
+            for model in self.vector_model_set:
                 model.save()
