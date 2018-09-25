@@ -4,9 +4,6 @@ from django.core.mail import send_mail
  
 class YummyMailer():
 
-    def __init__(self):
-        self.set_url_list()
-
     def find_changed_url(self):
     	domain_url = []
     	for changed_url in DomainUrl.objects.filter(has_change__exact = 1):
@@ -24,7 +21,7 @@ class YummyMailer():
                 subject = 'Yummy Spam : 새로운 공지가 업데이트 되었습니다.',
                 message = DomainUrl.objects.filter(pk__exact = url_id).get().url+' 에서 새로운 공지가 업데이트 되었습니다.',
                 from_email = settings.EMAIL_HOST_USER,
-                recipient_list = [user_email],
+                recipient_list = user_email,
                 fail_silently = False,
             )
 
@@ -32,10 +29,7 @@ class YummyMailer():
         DomainUrl.objects.filter(pk__exact = url_id).update(has_change = False)
 
     def send(self):
-        url = find_changed_url()
+        url = self.find_changed_url()
         for _id in url:
-            send_mail_by_url(_id)
-            update_has_change(_id)
-
-    def set_url_list(self):
-        self.url_list = self.find_changed_url()
+            self.send_mail_by_url(_id)
+            self.update_has_change(_id)
