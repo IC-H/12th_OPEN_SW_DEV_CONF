@@ -1,5 +1,5 @@
-from .compare import CompareVecter
+from .compare import CompareVector
 
 __all__ = [
-    'CompareVecter'
+    'CompareVector'
 ]
