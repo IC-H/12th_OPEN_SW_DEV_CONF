@@ -28,19 +28,24 @@ class CompareVector():
     def compare_vector(self):
         if len(self.db_model) == 0:
             self.save()
-            print('save')
         elif len(self.new_model) == len(self.db_model):
             for i in range(len(self.new_model)):
-                if Com.db_model[i] != Com.new_model[i]:
+                if self.db_model[i] != self.new_model[i]:
+                    break
+                    self.delete()
                     self.save()
+                    self.update()
         else:
-        	self.save()
-                   
+            self.delete()
+            self.save()
+            self.update()
+
+    def delete(self):
+        HtmlVector.objects.filter(url_id__exact = self.get_url_id()).delete()
+
     def update(self):
         DomainUrl.objects.filter(pk__exact = self.get_url_id()).update(has_change = True)
 
     def save(self):
         for _model in self.vector_model_set:
             _model.save()
-        self.update()
-
