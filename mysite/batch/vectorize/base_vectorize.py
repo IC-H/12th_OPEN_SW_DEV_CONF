@@ -74,3 +74,6 @@ class BaseVectorize(metaclass=MeataVectorize):
     
     def get_vector_set(self):
         return self._vector_set
+    
+    def reset_vector_set(self):
+        self._vector_set = []
