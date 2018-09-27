@@ -1,8 +1,8 @@
 from .item import CheckableItem
 from .base_container import BaseContainer
 from common.utils import (
-    extract_url_with_out_get_params as ext_wo_get_params,
-    extract_url_with_out_last_slash as ext_wo_last_slash
+    extract_url_without_get_params as ext_wo_get_params,
+    extract_url_without_last_slash as ext_wo_last_slash
 )
 
 class UrlPage(CheckableItem):

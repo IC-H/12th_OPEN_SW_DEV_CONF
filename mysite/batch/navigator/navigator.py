@@ -2,8 +2,8 @@ from common.models import DomainMst
 from .navigation_book import NavigationBook
 from bs4 import BeautifulSoup
 from common.utils import (
-    extract_domain_from_url_with_out_protocol as ext_domain, 
-    extract_url_with_out_protocol as ext_url,
+    extract_domain_from_url_without_protocol as ext_domain, 
+    extract_url_without_protocol as ext_url,
     convert_relative_path_to_absolute_path as conv_re_ab,
 )
 import requests

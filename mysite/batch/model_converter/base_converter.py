@@ -3,8 +3,8 @@ from django.db.models import Model, QuerySet
 from django.db import transaction, DatabaseError, IntegrityError
 from common.models import DomainMst, DomainUrl
 from common.utils import (
-    extract_domain_from_url_with_out_protocol as ext_domain, 
-    extract_url_with_out_protocol as ext_url
+    extract_domain_from_url_without_protocol as ext_domain, 
+    extract_url_without_protocol as ext_url
 )
 import requests
 
