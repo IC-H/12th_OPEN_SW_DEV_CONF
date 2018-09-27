@@ -2,8 +2,11 @@ from django.core.exceptions import FieldError, ValidationError
 from django.db.models import Model, QuerySet
 from django.db import transaction, DatabaseError, IntegrityError
 from common.models import DomainMst, DomainUrl
+from common.utils import (
+    extract_domain_from_url_without_protocol as ext_domain, 
+    extract_url_without_protocol as ext_url
+)
 import requests
-import re
 
 class MetaConverter(type):
     def __new__(cls, name, bases, attrs, **kwargs):
@@ -53,8 +56,8 @@ class BaseModelConverter(metaclass=MetaConverter):
         If url's domain and url are already registed their table, read it.
         If not registed, regist them and read it.
         '''
-        domain = re.search(r"((?<=(^http:\/\/))|(?<=^https:\/\/))[^\/]*", response.url).group()
-        url = re.search(r"((?<=(^http:\/\/))|(?<=^https:\/\/)).*", response.url).group()
+        domain = ext_domain(response.url)
+        url = ext_url(response.url)
         self._domain_mst_model = DomainMst.find_by_domain_with_out_fail(domain)
         self._domain_url_model = DomainUrl.find_by_url_with_out_fail(url)
     
