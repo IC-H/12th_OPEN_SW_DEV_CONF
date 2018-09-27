@@ -79,6 +79,7 @@ class BaseContainer(CheckableItem, metaclass=MetaContainer):
             self.is_checked = False
         if isinstance(content, BaseContainer):
             content.add_item(*args, **kwargs)
+        self._check_all_checked()
     
     def get_item(self):
         content = self.search_not_checked_item()
