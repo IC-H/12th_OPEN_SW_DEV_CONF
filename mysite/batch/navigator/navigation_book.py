@@ -1,11 +1,20 @@
 from .item import CheckableItem
 from .base_container import BaseContainer
+from common.utils import (
+    extract_url_with_out_get_params as ext_wo_get_params,
+    extract_url_with_out_last_slash as ext_wo_last_slash
+)
 
 class UrlPage(CheckableItem):
     def __init__(self, url, method='GET', params={}):
         super().__init__(url)
         self.method = method
         self.params = params
+    
+    def is_same(self, item):
+        self_item = ext_wo_last_slash(self.item)
+        item = ext_wo_last_slash(item)
+        return ext_wo_get_params(self_item) == ext_wo_get_params(item)
 
 class DomainChapter(BaseContainer):
     
