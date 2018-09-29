@@ -15,7 +15,7 @@ class BaseCrawler:
         # Japanese
         'EUC-JP', 'SHIFT_JIS', 'ISO-2022-JP',
     ]
-    timeout = 1
+    timeout = 10
     
     def __init__(self, protocol='https'):
         if not protocol in self.valid_protocol:

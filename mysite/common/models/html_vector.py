@@ -9,8 +9,9 @@ class HtmlVector(models.Model):
     tag_order = models.PositiveSmallIntegerField(default=1)
     word = models.ForeignKey(Word, on_delete=models.CASCADE)
     word_order = models.PositiveSmallIntegerField(default=1)
+    depth = models.PositiveSmallIntegerField(default=1)
 
-    VECTOR_INDICES = ['lang_id', 'tag_id', 'tag_order', 'word_id', 'word_order']
+    VECTOR_INDICES = ['lang_id', 'tag_id', 'tag_order', 'word_id', 'word_order', 'depth']
 
     class Meta:
         managed = False
