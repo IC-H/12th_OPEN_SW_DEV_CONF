@@ -1,4 +1,4 @@
-from common.models import HtmlVector
+from common.models import HtmlVector, DomainUrl
 from batch.model_converter import HtmlVectorModelConverter
 from batch.vectorize import HtmlVectorize
 
@@ -9,20 +9,20 @@ class VectorComparer():
         self.vectorizer = HtmlVectorize(HtmlVector.VECTOR_INDICES)
 
     def set_response(self, response):
-        self.vectorizer.reset_vector_set()
         self.converter.run(response)
         self.new_vector_set = self.get_vector_from_html()
         self.db_vector_set = self.get_vector_from_db()
 
     def get_vector_from_html(self):
+        self.vectorizer.reset_vector_set()
         for _model in self.converter.vector_model_set:
             self.vectorizer.vectorize(_model)
         return self.vectorizer.get_vector_set()
 
     def get_vector_from_db(self):
+        self.vectorizer.reset_vector_set()
         url_id = self.converter.domain_url_model.pk
-        for _model in HtmlVector.objects.filter(url_id__exact = url_id):
-            self.vectorizer.vectorize(_model)
+        self.vectorizer.vectorize(query_set = HtmlVector.objects.filter(url_id__exact = url_id))
         return self.vectorizer.get_vector_set()
 
     def compare_vector(self):
@@ -37,5 +37,5 @@ class VectorComparer():
     def update_vector_set(self):
         HtmlVector.objects.filter(url_id__exact = self.converter.domain_url_model.pk).delete()    	
         self.converter.save_model_set()
-        self.converter.domain_url_model.update(has_change = True)
+        DomainUrl.objects.filter(pk__exact=self.converter.domain_url_model.pk).update(has_change = True)
 
