@@ -14,7 +14,7 @@ class Navigator:
     
     navigator_book = NavigationBook()
     
-    banned_domain = ['www.instagram.com', 'www.facebook.com', 'www.youtube.com', 'twitter.com']
+    banned_domain = ['www.instagram.com', 'www.facebook.com', 'www.youtube.com', 'twitter.com', 'www.linkedin.com']
     
     def __init__(self):
         if not self._initialized:
