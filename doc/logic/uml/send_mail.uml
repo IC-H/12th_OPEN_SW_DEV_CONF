@@ -1,0 +1,15 @@
+@startuml
+start
+:'from DomainUrl;
+repeat
+if (has_change = True?) then (Yes)
+    :Get user from UserUrl;
+    :Send mail to User;
+    :Set 'has_change' = False;
+else (No)
+    endif
+    if (Left more URL?) then (No)
+        stop
+    else (Yes)
+        endif
+@enduml
