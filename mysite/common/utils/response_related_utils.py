@@ -35,7 +35,10 @@ def extract_url_without_last_slash(url):
     '''
     return re.search(r'^(.+?)[/]*$', url).group(1)
 
+def looks_like_notice_url(url):
+    return re.search(r'notice|list', url) is not None
+
 __all__ = [
     'extract_domain_from_url_without_protocol', 'extract_url_without_protocol', 'convert_relative_path_to_absolute_path',
-    'extract_url_without_get_params', 'extract_url_without_last_slash'
+    'extract_url_without_get_params', 'extract_url_without_last_slash', 'looks_like_notice_url'
 ]
