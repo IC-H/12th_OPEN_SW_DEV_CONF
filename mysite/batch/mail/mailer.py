@@ -5,10 +5,10 @@ from django.core.mail import send_mail
 class YummyMailer():
 
     def find_changed_url(self):
-    	domain_url = []
-    	for changed_url in DomainUrl.objects.filter(has_change__exact = 1):
-    	    domain_url.append(changed_url.id)
-    	return domain_url
+        domain_url = []
+        for changed_url in DomainUrl.objects.filter(has_change__exact = 1):
+            domain_url.append(changed_url.id)
+        return domain_url
 
     def send_mail_by_url(self, url_id):
         user = UserUrl.objects.filter(url__exact = url_id)
