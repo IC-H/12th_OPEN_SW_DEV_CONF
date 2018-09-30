@@ -8,7 +8,11 @@ from common.models import DomainUrl, HtmlVector
 class NoticeUrlCrawler(BaseCrawler, Thread):
     
     def __init__(self, *args, **kwargs):
-        BaseCrawler.__init__(self, *args, **kwargs)
+        crawler_kwargs = {}
+        protocol = kwargs.pop('protocol',None)
+        if protocol is not None:
+            crawler_kwargs['protocol'] = protocol
+        BaseCrawler.__init__(self, *args, **crawler_kwargs)
         Thread.__init__(self, *args, **kwargs)
         self.navigator = Navigator()
     
