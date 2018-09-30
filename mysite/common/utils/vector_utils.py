@@ -27,6 +27,8 @@ def n_spatial_moments(vector_set, degree, with_label=False):
     prefix = 'm'
     row_vector_set = convert_vector_set_to_row_vector_set(vector_set)
     dimension = len(row_vector_set)
+    mass = None
+    deg_1_set = []
     for nth_deg in range(0, degree + 1):
         group_set = generate_group_set_by_dim_and_deg(dimension, nth_deg)
         for group in group_set:
@@ -34,8 +36,32 @@ def n_spatial_moments(vector_set, degree, with_label=False):
             moment = None
             for index in range(dimension):
                 label += str(group[index])
-                moment = moment*row_vector_set[index]**group[index] if moment is not None else row_vector_set[index]**group[index]
+                tmp = row_vector_set[index]**group[index]
+                moment = moment*tmp if moment is not None else tmp
             spatial_moments[label] = np.sum(moment)
+            if nth_deg == 0:
+                mass = np.sum(moment)
+            elif nth_deg == 1:
+                deg_1_set.append(np.sum(moment)/mass)
+    prefix = 'mu'
+    prefix_n = 'nu'
+    for nth_deg in range(2, degree + 1):
+        group_set = generate_group_set_by_dim_and_deg(dimension, nth_deg)
+        for group in group_set:
+            label = prefix
+            label_n = prefix_n
+            moment = None
+            moment_n = None
+            for index in range(dimension):
+                label += str(group[index])
+                label_n += str(group[index])
+                tmp = (row_vector_set[index] - np.array([deg_1_set[index]/mass]*len(vector_set)))**group[index]
+                tmp_n = (row_vector_set[index] - np.array([deg_1_set[index]/(mass**(nth_deg/dimension + 1))]*len(vector_set)))**group[index]
+                moment = moment*tmp if moment is not None else tmp
+                moment_n = moment_n*tmp_n if moment_n is not None else tmp_n
+            spatial_moments[label] = np.sum(moment)
+            spatial_moments[label_n] = np.sum(moment_n)
+    
     if with_label:
         return spatial_moments
     else:
