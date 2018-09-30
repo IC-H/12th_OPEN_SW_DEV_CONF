@@ -48,7 +48,7 @@ def n_spatial_moments(vector_set, degree, with_label=False):
             if nth_deg == 0:
                 mass = spatial_moments[prefix + label]
             elif nth_deg == 1:
-                deg_1_set.append(spatial_moments[prefix + label]/mass)
+                deg_1_set.append(spatial_moments[prefix + label])
             elif nth_deg > 1:
                 spatial_moments[prefix_c + label] = np.sum(moment_c)
                 spatial_moments[prefix_n + label] = spatial_moments[prefix_c + label]/(mass**(nth_deg/dimension + 1))
