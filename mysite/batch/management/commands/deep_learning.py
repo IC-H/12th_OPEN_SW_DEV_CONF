@@ -6,8 +6,7 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         try:
-            nn = DeepLearner()
-            nn.set_neural_network(
+            nn = DeepLearner(
                	input_dim = 2,
                 n_layer1 = 50,
                 n_layer2 = 50,

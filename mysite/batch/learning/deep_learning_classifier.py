@@ -9,8 +9,9 @@ class DeepLearner(BaseClassifier):
 
     def __init__(self):
         super().__init__()
+        self.set_neural_network()
 
-    def set_neural_network(self, input_dim, n_layer1 = 10, n_layer2 = 10, learning_rate = 0.1):
+    def set_neural_network(self, input_dim = 0, n_layer1 = 10, n_layer2 = 10, learning_rate = 0.1):
         self.x = tf.placeholder(tf.float32, shape=[None, input_dim])   ### Input
         self.t = tf.placeholder(tf.float32, shape=[None, 1])
         self.keep_prob = tf.placeholder(tf.float32)   ### drop out 연결할 확률 (0~1사이)
