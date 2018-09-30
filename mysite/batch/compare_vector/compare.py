@@ -106,7 +106,7 @@ class VectorComparer():
 
     def update_vector_set(self):
         print('-- save --')
-        HtmlVector.objects.filter(url_id__exact = self.converter.domain_url_model.pk).delete()    	
+        HtmlVector.objects.filter(url_id__exact = self.converter.domain_url_model.pk).delete()
         self.converter.save_model_set()
         self.converter.domain_url_model.has_change = True
         self.converter.domain_url_model.save()
