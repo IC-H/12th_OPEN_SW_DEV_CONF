@@ -4,11 +4,8 @@ from batch.navigator import Navigator
 from batch.model_converter import HtmlVectorModelConverter, HtmlVectorWithDepthModelConverter, HtmlVectorLiteModelConverter
 from batch.vectorize import HtmlVectorize, HtmlDepthVectorizor, HtmlVectorizeLite
 from common.models import DomainUrl, HtmlVector, HtmlVectorWithDepth, HtmlVectorLite
-from datetime import datetime
 
 class NoticeUrlCrawler(BaseCrawler, Thread):
-    
-    count = []
     
     def __init__(self, *args, **kwargs):
         crawler_kwargs = {}
@@ -18,8 +15,6 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
         BaseCrawler.__init__(self, *args, **crawler_kwargs)
         Thread.__init__(self, *args, **kwargs)
         self.navigator = Navigator()
-        self.count.append(1)
-        self.start_time = datetime.now()
     
     def run(self):
         # convert request.models.Response to each model of vector
@@ -32,7 +27,6 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
         lite_vectorizor = HtmlVectorizeLite(HtmlVectorLite.VECTOR_INDICES)
         
         while not self.navigator.is_over():
-            tmp = datetime.now()
             url, request_moethod, request_params = self.navigator.get_next()
             response = None
             if request_moethod == 'POST':
@@ -40,7 +34,6 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
             elif request_moethod == 'GET':
                 response = self.get_request(url)
             
-            tmp = datetime.now()
             self.navigator.analyze_response(response)
             if response is None:
                 continue
@@ -48,14 +41,12 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
             if DomainUrl.objects.filter(url__exact=url).exists():
                 continue
             
-            tmp = datetime.now()
             converter.run(response)
             depth_converter.run(response)
             lite_converter.run(response)
             converter.save_model_set()
             depth_converter.save_model_set()
             lite_converter.save_model_set()
-            tmp = datetime.now()
             vectorizor.reset_vector_set()
             for model in converter.vector_model_set:
                 vectorizor.vectorize(model)
@@ -71,7 +62,3 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
             '''
             check that url is for notice or not using vector_set
             '''
-    
-    def __del__(self):
-        self.count.pop(0)
-        end_time = datetime.now()
