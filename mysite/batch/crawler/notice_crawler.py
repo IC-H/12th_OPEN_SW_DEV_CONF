@@ -13,7 +13,6 @@ class NoticeCrawler(BaseCrawler):
         for model in self.find_notice_model():
             try:
                 response = self.get_request(model.url)
-                print(model.url)
             except requests.exceptions.Timeout as e:
                 print(e)
                 continue

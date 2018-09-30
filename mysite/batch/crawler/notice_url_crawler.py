@@ -20,7 +20,6 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
         self.navigator = Navigator()
         self.count.append(1)
         self.start_time = datetime.now()
-        print('crawler init %s' % len(self.count))
     
     def run(self):
         # convert request.models.Response to each model of vector
@@ -35,7 +34,6 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
         while not self.navigator.is_over():
             tmp = datetime.now()
             url, request_moethod, request_params = self.navigator.get_next()
-            print('get next over %s second' % (datetime.now() - tmp).total_seconds())
             response = None
             if request_moethod == 'POST':
                 response = self.post_request(url, request_params)
@@ -44,7 +42,6 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
             
             tmp = datetime.now()
             self.navigator.analyze_response(response)
-            print('analyze_response over %s second' % (datetime.now() - tmp).total_seconds())
             if response is None:
                 continue
             
@@ -55,7 +52,6 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
             converter.run(response)
             depth_converter.run(response)
             lite_converter.run(response)
-            print('converter over %s second' % (datetime.now() - tmp).total_seconds())
             converter.save_model_set()
             depth_converter.save_model_set()
             lite_converter.save_model_set()
@@ -72,7 +68,6 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
             for model in lite_converter.vector_model_set:
                 lite_vectorizor.vectorize(model)
             lite_vector_set = lite_vectorizor.get_vector_set
-            print('vectorize over %s second' % (datetime.now() - tmp).total_seconds())
             '''
             check that url is for notice or not using vector_set
             '''
@@ -80,5 +75,3 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
     def __del__(self):
         self.count.pop(0)
         end_time = datetime.now()
-        print('crawler del %s' % len(self.count))
-        #print('crawler run over %s second' % (end_time - self.start_time).total_seconds())
