@@ -1,9 +1,9 @@
 from threading import Thread
 from .base_crawler import BaseCrawler
 from batch.navigator import Navigator
-from batch.model_converter import HtmlVectorModelConverter
-from batch.vectorize import HtmlVectorize
-from common.models import DomainUrl, HtmlVector
+from batch.model_converter import HtmlVectorModelConverter, HtmlVectorWithDepthModelConverter, HtmlVectorLiteModelConverter
+from batch.vectorize import HtmlVectorize, HtmlDepthVectorizor, HtmlVectorizeLite
+from common.models import DomainUrl, HtmlVector, HtmlVectorWithDepth, HtmlVectorLite
 from datetime import datetime
 
 class NoticeUrlCrawler(BaseCrawler, Thread):
@@ -23,8 +23,14 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
         print('crawler init %s' % len(self.count))
     
     def run(self):
+        # convert request.models.Response to each model of vector
         converter = HtmlVectorModelConverter()
+        depth_converter = HtmlVectorWithDepthModelConverter()
+        lite_converter = HtmlVectorLiteModelConverter()
+        # vectorizor for each model of vector
         vectorizor = HtmlVectorize(HtmlVector.VECTOR_INDICES)
+        depth_vectorizor = HtmlDepthVectorizor(HtmlVectorWithDepth.VECTOR_INDICES)
+        lite_vectorizor = HtmlVectorizeLite(HtmlVectorLite.VECTOR_INDICES)
         
         while not self.navigator.is_over():
             tmp = datetime.now()
@@ -47,13 +53,25 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
             
             tmp = datetime.now()
             converter.run(response)
+            depth_converter.run(response)
+            lite_converter.run(response)
             print('converter over %s second' % (datetime.now() - tmp).total_seconds())
             converter.save_model_set()
+            depth_converter.save_model_set()
+            lite_converter.save_model_set()
             tmp = datetime.now()
             vectorizor.reset_vector_set()
             for model in converter.vector_model_set:
                 vectorizor.vectorize(model)
             vector_set = vectorizor.get_vector_set
+            depth_vectorizor.reset_vector_set()
+            for model in depth_converter.vector_model_set:
+                depth_vectorizor.vectorize(model)
+            depth_vector_set = depth_vectorizor.get_vector_set
+            lite_vectorizor.reset_vector_set()
+            for model in lite_converter.vector_model_set:
+                lite_vectorizor.vectorize(model)
+            lite_vector_set = lite_vectorizor.get_vector_set
             print('vectorize over %s second' % (datetime.now() - tmp).total_seconds())
             '''
             check that url is for notice or not using vector_set

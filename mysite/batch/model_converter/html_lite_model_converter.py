@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag as BsTag
 from langdetect import detect
 from langdetect.lang_detect_exception import LangDetectException
-import requests
 
 class HtmlVectorLiteModelConverter(BaseModelConverter):
 
