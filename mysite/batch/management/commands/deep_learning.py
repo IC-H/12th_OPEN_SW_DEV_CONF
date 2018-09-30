@@ -1,25 +1,28 @@
 from django.core.management.base import BaseCommand, CommandError
 from batch.learning import DeepLearner
+import numpy as np
 
 class Command(BaseCommand):
     
     def handle(self, *args, **options):
         try:
-            nn = DeepLearner(
-               	input_dim = 5,
-                n_layer1 = 10,
-                n_layer2 = 10,
-                learning_rate = 0.1)
+            nn = DeepLearner()
+            nn.set_neural_network(
+               	input_dim = 2,
+                n_layer1 = 50,
+                n_layer2 = 50,
+                learning_rate = 0.001)
 
-            nn.learning(
-                X_train = X_train,  ###
-                Y_train = Y_train,  ###
-                dropout_prob = 0.7,
+            nn.teach(
+                X_train = np.array([[0, 0], [1, 0], [0, 1], [1, 1]]),  ###
+                Y_train = np.array([[0], [1], [1], [0]]),  ###
+                dropout_prob = 1.0,
                 n_try = 100, 
-                batch_size = 32)
+                batch_size = 16)
 
-            nn.get_result(X_test, Y_test)
-            ### nn.get_fitted_value(X_test, Y_test)
+            print('result')
+            nn.get_result()
+            nn.get_fitted_value(np.array([[0, 0], [1, 0], [0, 1], [1, 1]]))
 
         except CommandError as e:
             print(e)
