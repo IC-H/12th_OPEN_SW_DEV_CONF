@@ -16,3 +16,4 @@ this is 12th Open SW Developer Conference
 * pip install numpy
 * pip install scipy
 * pip install -U scikit-learn
+* pip install tensorflow
