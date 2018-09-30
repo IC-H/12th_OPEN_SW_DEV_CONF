@@ -3,7 +3,7 @@ from django.conf import settings
 class BaseClassifier():
     """Base model of classfting the notice url"""
     def __init__(self):
-    	self._did_learn = False
+        self._did_learn = False
         self.load()
 
     def load(self): # 학슴결과 불러오기
