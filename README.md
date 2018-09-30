@@ -12,3 +12,7 @@ this is 12th Open SW Developer Conference
 * pip install requests
 * pip install beautifulsoup4
 * pip install langdetect
+
+* pip install numpy
+* pip install scipy
+* pip install -U scikit-learn
