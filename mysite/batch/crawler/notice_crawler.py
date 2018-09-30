@@ -1,5 +1,5 @@
 from . import BaseCrawler
-from common.models import DomainUrl, HtmlVector
+from common.models import DomainUrl
 from batch.compare_vector import VectorComparer
 import requests
 
