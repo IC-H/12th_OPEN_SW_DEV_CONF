@@ -1,15 +1,17 @@
 import numpy as np
 import tensorflow as tf
 from sklearn.utils import shuffle
-
+from . import BaseClassifier
+ 
 sess = tf.Session()
 
-class DeepLearner():
+class DeepLearner(BaseClassifier):
 
     def __init__(self):
+        super().__init__()
         self.set_neural_network()
 
-    def set_neural_network(self, input_dim, n_layer1 = 10, n_layer2 = 10, learning_rate = 0.1):
+    def set_neural_network(self, input_dim = 0, n_layer1 = 10, n_layer2 = 10, learning_rate = 0.1):
         self.x = tf.placeholder(tf.float32, shape=[None, input_dim])   ### Input
         self.t = tf.placeholder(tf.float32, shape=[None, 1])
         self.keep_prob = tf.placeholder(tf.float32)   ### drop out 연결할 확률 (0~1사이)
@@ -41,7 +43,7 @@ class DeepLearner():
         self.loss = self.cross_ent.eval(session=sess, feed_dict={self.x:X, self.t:Y, self.keep_prob:1.0})
         print("Accuracy :", self.model_accuracy, ",   Loss :", self.loss)
 
-    def learning(self, X_train, Y_train, dropout_prob = 0.7, n_try = 100, batch_size = 16): 
+    def teach(self, X_train, Y_train, dropout_prob = 0.7, n_try = 100, batch_size = 16): 
         n_samples = X_train.shape[0]
         bch_size = batch_size   ### 보통 2^n 꼴로 정한다.
         n_batches = n_samples // bch_size
@@ -56,13 +58,12 @@ class DeepLearner():
                 self.print_process(X_train, Y_train)
                 if np.isnan(self.loss):
                     break
-
-    def get_result(self, X_test, Y_test):
-        print('Train Set')
         self.print_process(X_train, Y_train)
-        print('Test Set')
-        self.print_process(X_test, Y_test)
+        self.did_learn = True
 
-    def get_fitted_value(self, X_test, Y_test):
-        self.fitted_value = self.y.eval(session=sess, feed_dict={self.x:X_test, self.t:Y_test, self.keep_prob:1.0})
+    def get_result(self):
+        print("Accuracy :", self.model_accuracy, ",   Loss :", self.loss)
+
+    def get_fitted_value(self, X_test):
+        self.fitted_value = self.y.eval(session=sess, feed_dict={self.x:X_test, self.keep_prob:1.0})
         return self.fitted_value

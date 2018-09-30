@@ -1,29 +1,19 @@
 from django.core.exceptions import ValidationError
 from common.utils import n_spatial_moments as moments
 from common.models import DomainUrl, HtmlVector
-from batch.model_converter import HtmlVectorModelConverter
 from batch.vectorize import HtmlVectorize
 from sklearn import svm, linear_model
 import numpy as np
 import re
+from . import BaseClassifier
 
-class SvmClassifier:
+class SvmClassifier(BaseClassifier):
     def __init__(self, kernel='rbf'):
-        self._did_learn = False
+        super().__init__()
         self.vectorizor = HtmlVectorize(HtmlVector.VECTOR_INDICES)
         self.clf = svm.SVC(kernel='rbf', gamma='scale')
         print('learn through svm with %s kernel' %kernel)
         # self.reg = linear_model.Ridge(alpha = .5)
-    
-    @property
-    def did_learn(self):
-        return self._did_learn
-    
-    @did_learn.setter
-    def did_learn(self, flg):
-        if not isinstance(flg, bool):
-            raise TypeError('flg has to be bool')
-        self._did_learn = flg
     
     def _pre_process(self, data, deg=5, with_norm=True, m_flg=True, c_flg=True, n_flg=True):
         moms = moments(data, deg, with_norm=with_norm, with_label=True)
@@ -111,8 +101,6 @@ class SvmClassifier:
         self.learn(pre_processed_data_set, result_set)
     
     def classify(self, data):
-        if not self._did_learn:
-            raise ValidationError('befor classify you have to learn the classifier')
         data = self._pre_process(data)
         result = self.clf.predict([data])
         # print(self.reg.predict([data]))
