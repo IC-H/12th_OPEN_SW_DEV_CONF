@@ -10,6 +10,6 @@ class NoticeCrawlerLite(BaseCrawler):
     def run(self):
         Comparer = VectorComparerLite()
         for model in self.find_notice_model():
-        	response = self.get_request(model.url)
-        	Comparer.set_response(response)
-        	Comparer.compare_vector()
+            response = self.get_request(model.url)
+            Comparer.set_response(response)
+            Comparer.compare_vector()

@@ -9,7 +9,6 @@ class VectorComparerLite():
         self.vectorizer = HtmlVectorizeLite(HtmlVectorLite.VECTOR_INDICES)
 
     def set_response(self, response):
-        print(response.url)
         self.converter.run(response)
         self.new_vector_set = self.get_vector_from_html()
         self.db_vector_set = self.get_vector_from_db()
@@ -27,7 +26,6 @@ class VectorComparerLite():
         return self.vectorizer.get_vector_set()
 
     def compare_vector(self):
-        print(len(self.new_vector_set), len(self.db_vector_set))
         if len(self.new_vector_set) == len(self.db_vector_set):
             for i in range(len(self.new_vector_set)):
                 if self.db_vector_set[i] != self.new_vector_set[i]:
@@ -37,8 +35,7 @@ class VectorComparerLite():
             self.update_vector_set()
 
     def update_vector_set(self):
-        print('-- save --')
-        HtmlVectorLite.objects.filter(url_id__exact = self.converter.domain_url_model.pk).delete()    	
+        HtmlVectorLite.objects.filter(url_id__exact = self.converter.domain_url_model.pk).delete()
         self.converter.save_model_set()
         DomainUrl.objects.filter(pk__exact=self.converter.domain_url_model.pk).update(has_change = True)
 

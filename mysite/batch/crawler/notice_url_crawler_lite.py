@@ -2,7 +2,7 @@ from threading import Thread
 from .base_crawler import BaseCrawler
 from batch.navigator import Navigator
 from batch.model_converter import HtmlVectorLiteModelConverter
-from batch.vectorize import HtmlVectorize
+from batch.vectorize import HtmlVectorizeLite
 from common.models import DomainUrl, HtmlVectorLite
 
 class NoticeUrlCrawlerLite(BaseCrawler, Thread):
@@ -14,7 +14,7 @@ class NoticeUrlCrawlerLite(BaseCrawler, Thread):
     
     def run(self):
         converter = HtmlVectorLiteModelConverter()
-        vectorizor = HtmlVectorize(HtmlVectorLite.VECTOR_INDICES)
+        vectorizor = HtmlVectorizeLite(HtmlVectorLite.VECTOR_INDICES)
         
         while not self.navigator.is_over():
             url, request_moethod, request_params = self.navigator.get_next()
@@ -31,7 +31,6 @@ class NoticeUrlCrawlerLite(BaseCrawler, Thread):
             
             if DomainUrl.objects.filter(url__exact=url).exists():
                 continue
-            print(response)
             
             converter.run(response)
             converter.save_model_set()

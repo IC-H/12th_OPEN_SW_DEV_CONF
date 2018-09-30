@@ -25,7 +25,7 @@ class HtmlVectorLiteModelConverter(BaseModelConverter):
         while(tag.parent != None):
             tag = tag.parent
             parent_tag.append(tag.name)
-        return len(parent_tag)
+        return len(parent_tag)+1
 
     def _append_model(self, tag):
         log_of_current_tag = self._tag_log.get(tag.name, {'count' : 0})
