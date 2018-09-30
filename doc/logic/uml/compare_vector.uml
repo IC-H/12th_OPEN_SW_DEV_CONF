@@ -1,0 +1,25 @@
+@startuml
+start
+:URL from DomainUrl;
+repeat
+if (URL is notice url) then (Yes)
+
+    :Get Response from URL;
+    :Convert to vector model;
+    split
+       :Vectorize from Converted model;
+    split again
+    :Vectorize from Database model;
+    end split
+    :Compare two model;
+    if (differnt) then (No)
+    else (Yes)
+        :Save;
+    endif
+else (no)
+    endif
+        if (Left more URL?) then (No)
+            stop
+        else (Yes)
+            endif
+@enduml
