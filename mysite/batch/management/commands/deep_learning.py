@@ -7,7 +7,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             nn = DeepLearner(
-               	input_dim = 2,
+                input_dim = 2,
                 n_layer1 = 50,
                 n_layer2 = 50,
                 learning_rate = 0.001)
