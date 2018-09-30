@@ -7,6 +7,7 @@ from common.utils import (
     convert_relative_path_to_absolute_path as conv_re_ab,
 )
 import requests
+import re
 
 class Navigator:
     
@@ -38,6 +39,8 @@ class Navigator:
         if domain is None or url is None:
             return
         if domain in self.banned_domain:
+            return
+        if re.search(r'adobe', domain):
             return
         
         kwargs = {

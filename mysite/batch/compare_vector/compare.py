@@ -28,6 +28,8 @@ class VectorComparer():
 
     def compare_vector(self):
         print(len(self.new_vector_set), len(self.db_vector_set))
+        print('len of new vector set %s' % len(self.new_vector_set))
+        print('len of db vector set %s' % len(self.db_vector_set))
         if len(self.new_vector_set) == len(self.db_vector_set):
             for i in range(len(self.new_vector_set)):
                 if self.db_vector_set[i] != self.new_vector_set[i]:
