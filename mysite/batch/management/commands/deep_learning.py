@@ -19,7 +19,6 @@ class Command(BaseCommand):
                 n_try = 100, 
                 batch_size = 16)
 
-            print('result')
             nn.get_result()
             nn.get_fitted_value(np.array([[0, 0], [1, 0], [0, 1], [1, 1]]))
 
