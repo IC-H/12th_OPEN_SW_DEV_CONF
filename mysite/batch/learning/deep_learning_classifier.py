@@ -59,6 +59,7 @@ class DeepLearner(BaseClassifier):
                 if np.isnan(self.loss):
                     break
         self.print_process(X_train, Y_train)
+        self.did_learn = True
 
     def get_result(self):
         print("Accuracy :", self.model_accuracy, ",   Loss :", self.loss)

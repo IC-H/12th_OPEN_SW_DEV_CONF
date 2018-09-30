@@ -101,8 +101,6 @@ class SvmClassifier(BaseClassifier):
         self.learn(pre_processed_data_set, result_set)
     
     def classify(self, data):
-        if not self._did_learn:
-            raise ValidationError('befor classify you have to learn the classifier')
         data = self._pre_process(data)
         result = self.clf.predict([data])
         # print(self.reg.predict([data]))
