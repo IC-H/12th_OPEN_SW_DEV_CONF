@@ -5,7 +5,7 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         try:
-            crawler = NoticeCrawler()
+            crawler = NoticeCrawler(protocol='http')
             crawler.run()
         except CommandError as e:
             print(e)

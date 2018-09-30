@@ -11,11 +11,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             for thread in range(options['thread_num']):
-                crawler = NoticeUrlCrawler()
+                crawler = NoticeUrlCrawler(protocol='http')
                 crawler.start()
         except CommandError as e:
             print(e)
         except ValidationError as e:
             print(e)
         except (IntegrityError, DatabaseError) as e:
+            print(e)
+        except Exception as e:
             print(e)
