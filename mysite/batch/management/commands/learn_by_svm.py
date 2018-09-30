@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, DatabaseError
-from batch.learning.base_classifier import SvmClassifier
+from batch.learning import SvmClassifier
 import re
 
 class Command(BaseCommand):
