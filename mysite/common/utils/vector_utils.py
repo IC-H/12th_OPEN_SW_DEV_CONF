@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.preprocessing import normalize
 
 def convert_vector_set_to_row_vector_set(vector_set):
     row_vector_set = []
@@ -22,11 +23,13 @@ def generate_group_set_by_dim_and_deg(dim, deg):
                 group_set.append(tmp)
         return np.array(group_set)
 
-def n_spatial_moments(vector_set, degree, with_label=False):
+def n_spatial_moments(vector_set, degree, with_norm=True, with_label=False):
     spatial_moments = {}
     prefix = 'm'
     prefix_c = 'mu'
     prefix_n = 'nu'
+    if with_norm:
+        vector_set = normalize(vector_set)
     row_vector_set = convert_vector_set_to_row_vector_set(vector_set)
     dimension = len(row_vector_set)
     mass = None
