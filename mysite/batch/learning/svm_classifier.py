@@ -9,173 +9,103 @@ from . import BaseClassifier
 
 class SvmClassifier(BaseClassifier):
     
+    """
+    Classifier for classifying URL for notice or not
+    For that, this classifier is learned by SVM method
+    
+    For teaching the classifier 
+    """
+    
     class Meta:
         result_file_name = 'SVM_RESULT.sav'
     
     def __init__(self):
         super().__init__()
         self.vectorizor = HtmlVectorize(HtmlVector.VECTOR_INDICES)
-        # self.reg = linear_model.Ridge(alpha = .5)
     
     def set_model(self, kernel='rbf'):
         self.model = svm.SVC(kernel=kernel, gamma='scale')
     
     def _pre_process(self, data, deg=5, with_norm=True, m_flg=True, c_flg=True, n_flg=True):
+        """
+        preprocess by converting vector to moments
+        
+        `data` is raw data assumed with array of vector
+        
+        `deg` is degree of moments which non-negative integer
+        
+        `with_norm` is flag for normalization of data
+        
+        `m_flg` is flag for using spatial moments
+        
+        `c_flg` is flag for using central moments
+        
+        `n_flg` is flag for using central normalized moments
+        """
         moms = moments(data, deg, with_norm=with_norm, with_label=True)
         data = []
         for key in moms.keys():
             if re.search(r'^nu[0-9]*', key):
+                # central normalized moments
                 if n_flg:
                     data.append(moms[key])
             if re.search(r'^m[0-9]*', key):
+                # spatial moments
                 if m_flg:
                     data.append(moms[key])
-                pass
             if re.search(r'^mu[0-9]*', key):
+                # central moments
                 if c_flg:
                     data.append(moms[key])
-                pass
         return np.array(data)
-    
-    def _question_to_teacher(self, data):
-        return 0
     
     def learn(self, pre_processed_data_set, result_set):
         self.model.fit(pre_processed_data_set, result_set)
-        # self.reg.fit(pre_processed_data_set, result_set)
         self.did_learn = True
     
-    def teach(self, deg=5, with_norm=True, m_flg=True, c_flg=True, n_flg=True,
-              id_list=[74, 505, 506, 507, 508, 510, 521, 678, 683, 684, 685, 686, 687, 689, 690, 691],
-              f_leng=16):
+    def teach(self, deg=5, with_norm=True, m_flg=True, c_flg=True, n_flg=True, s_count=20, f_count=20):
+        """
+        learning process
+        
+        `data` is raw data assumed with array of vector
+        
+        `deg` is degree of moments which non-negative integer
+        
+        `with_norm` is flag for normalization of data
+        
+        `m_flg` is flag for using spatial moments
+        
+        `c_flg` is flag for using central moments
+        
+        `n_flg` is flag for using central normalized moments
+        
+        `s_count` is count of what times teach notice URL
+        
+        `f_count` is count of what times teach not-notice URL
+        """
         pre_processed_data_set = []
         result_set = []
-        '''
-        print('%s deg' % str(deg))
-        
-        print('%s normalize' % ('with' if with_norm  else 'without'))
-        
-        print('%s c_flg' % ('with' if c_flg  else 'without'))
-        
-        print('%s n_flg' % ('with' if n_flg  else 'without'))
-        
-        print('%s m_flg' % ('with' if m_flg  else 'without'))
-        '''
-        for model in DomainUrl.objects.filter(is_notice__exact=1).filter(pk__in = id_list):
+        for model in DomainUrl.objects.filter(is_notice__exact=1)[:s_count]:
             set = HtmlVector.objects.filter(url__exact=model)
             if not set.exists():
                 continue
             self.vectorizor.reset_vector_set()
             self.vectorizor.vectorize(query_set=set)
-            pre_processed_data_set.append(self._pre_process(self.vectorizor.get_vector_set(),deg=5, with_norm=True, m_flg=True, c_flg=True, n_flg=True))
+            pre_processed_data_set.append(self._pre_process(self.vectorizor.get_vector_set(),deg=deg, with_norm=with_norm, m_flg=m_flg, c_flg=c_flg, n_flg=n_flg))
             result_set.append(1)
-        len_pr_for_s = len(pre_processed_data_set)
-        print('notice sample\'s length is %s ' % str(len_pr_for_s))
         
-        for model in DomainUrl.objects.filter(is_notice__exact=0)[:f_leng]:
+        for model in DomainUrl.objects.filter(is_notice__exact=0)[:f_count]:
             set = HtmlVector.objects.filter(url__exact=model)
             if not set.exists():
                 continue
             self.vectorizor.reset_vector_set()
             self.vectorizor.vectorize(query_set=set)
-            pre_processed_data_set.append(self._pre_process(self.vectorizor.get_vector_set(),deg=5, with_norm=True, m_flg=True, c_flg=True, n_flg=True))
+            pre_processed_data_set.append(self._pre_process(self.vectorizor.get_vector_set(),deg=deg, with_norm=with_norm, m_flg=m_flg, c_flg=c_flg, n_flg=n_flg))
             result_set.append(0)
         
-        print('not notice sample\'s length is %s ' % str(len(pre_processed_data_set) - len_pr_for_s))
-        
-        '''
-        for model in DomainUrl.objects.all().order_by('id')[:650]:
-            set = HtmlVector.objects.filter(url__exact=model)
-            if not set.exists():
-                continue
-            self.vectorizor.reset_vector_set()
-            self.vectorizor.vectorize(query_set=set)
-            pre_processed_data_set.append(self._pre_process(self.vectorizor.get_vector_set()))
-            result_set.append(model.is_notice)
-        
-        sr = 0;
-        fr = 0;
-        for r in result_set:
-            if r == 1:
-                sr += 1
-            else:
-                fr += 1
-        print('sr is %s ' % str(sr))
-        print('fr is %s ' % str(fr))
-        '''
         self.learn(pre_processed_data_set, result_set)
     
     def classify(self, data):
         data = self._pre_process(data)
         result = self.model.predict([data])
-        # print(self.reg.predict([data]))
         return result[0]
-    
-    def test_result(self, id_list=[74, 505, 506, 507, 508, 510, 521, 678, 683, 684, 685, 686, 687, 689, 690, 691],
-                    f_leng = 16):
-        
-        st_count = 0
-        ss_count = 0;
-        sf_count = 0;
-        for model in DomainUrl.objects.filter(is_notice__exact=1).exclude(pk__in = id_list):
-            set = HtmlVector.objects.filter(url__exact=model)
-            if not set.exists():
-                continue
-            st_count += 1
-            self.vectorizor.reset_vector_set()
-            self.vectorizor.vectorize(query_set=set)
-            result = self.classify(self.vectorizor.get_vector_set())
-            if result:
-                ss_count += 1
-            else:
-                sf_count += 1
-        
-        print('ss_prop is %s' % str(ss_count/st_count*100))
-        print('sf_prop is %s' % str(sf_count/st_count*100))
-        
-        ft_count = 0
-        fs_count = 0;
-        ff_count = 0;
-        
-        for model in DomainUrl.objects.filter(is_notice__exact=0)[f_leng : f_leng*2]:
-            set = HtmlVector.objects.filter(url__exact=model)
-            if not set.exists():
-                continue
-            ft_count += 1
-            self.vectorizor.reset_vector_set()
-            self.vectorizor.vectorize(query_set=set)
-            result = self.classify(self.vectorizor.get_vector_set())
-            if not result:
-                fs_count += 1
-            else:
-                ff_count += 1
-        '''
-        print('fs_prop is %s' % str(fs_count/ft_count*100))
-        print('ff_prop is %s' % str(ff_count/ft_count*100))
-        
-        print('s_prop is %s' % str((fs_count + ss_count)/(st_count + ft_count)*100))
-        print('f_prop is %s' % str((sf_count + ff_count)/(st_count + ft_count)*100))
-        '''
-        '''
-        t_count = 0
-        s_count = 0;
-        f_count = 0;
-        for model in DomainUrl.objects.all().order_by('id')[650:]:
-            set = HtmlVector.objects.filter(url__exact=model)
-            if not set.exists():
-                continue
-            t_count += 1
-            self.vectorizor.reset_vector_set()
-            self.vectorizor.vectorize(query_set=set)
-            result = self.classify(self.vectorizor.get_vector_set())
-            if model.is_notice == 1:
-                print('success !')
-            if result == model.is_notice:
-                s_count += 1
-            else:
-                f_count += 1
-        print('ss_prop is %s' % str(s_count/t_count*100))
-        print('sf_prop is %s' % str(f_count/t_count*100))
-        '''
-        return (st_count, ss_count, sf_count, ft_count, fs_count, ff_count)
-        
