@@ -6,12 +6,15 @@ from . import BaseClassifier
 sess = tf.Session()
 
 class DeepLearner(BaseClassifier):
-
+    
+    class Meta:
+        result_file_name = 'DEEP_LEARNING_RESULT.sav'
+    
     def __init__(self):
+        self.set_model()
         super().__init__()
-        self.set_neural_network()
 
-    def set_neural_network(self, input_dim = 0, n_layer1 = 10, n_layer2 = 10, learning_rate = 0.1):
+    def set_model(self, input_dim = 0, n_layer1 = 10, n_layer2 = 10, learning_rate = 0.1):
         self.x = tf.placeholder(tf.float32, shape=[None, input_dim])   ### Input
         self.t = tf.placeholder(tf.float32, shape=[None, 1])
         self.keep_prob = tf.placeholder(tf.float32)   ### drop out 연결할 확률 (0~1사이)
@@ -26,13 +29,13 @@ class DeepLearner(BaseClassifier):
 
         w3 = tf.Variable(tf.truncated_normal([n_layer2, 1]))
         b3 = tf.Variable(tf.zeros([1]))
-        self.y = tf.nn.sigmoid(tf.matmul(z2, w3)+b3)   ### Output
+        self.model = tf.nn.sigmoid(tf.matmul(z2, w3)+b3)   ### Output
 
-        self.cross_ent = -tf.reduce_mean(self.t*tf.log(self.y) + (1-self.t)*tf.log(1-self.y))   ### Error function
+        self.cross_ent = -tf.reduce_mean(self.t*tf.log(self.model) + (1-self.t)*tf.log(1-self.model))   ### Error function
         optimizer = tf.train.GradientDescentOptimizer(learning_rate)
         self.train_step = optimizer.minimize(self.cross_ent)   ### Error의 Gradient Descendent 를 최소화
 
-        correct_pred = tf.equal(tf.to_float(tf.greater(self.y, 0.5)), self.t)   ### y와 0.5의 값 비교 ( T, F 반환 )
+        correct_pred = tf.equal(tf.to_float(tf.greater(self.model, 0.5)), self.t)   ### y와 0.5의 값 비교 ( T, F 반환 )
         self.accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))   ### 정확도 측정 
 
         init = tf.global_variables_initializer()   ### tensorflow에서는 계산시 initialize 필요
@@ -64,6 +67,6 @@ class DeepLearner(BaseClassifier):
     def get_result(self):
         print("Accuracy :", self.model_accuracy, ",   Loss :", self.loss)
 
-    def get_fitted_value(self, X_test):
-        self.fitted_value = self.y.eval(session=sess, feed_dict={self.x:X_test, self.keep_prob:1.0})
+    def classify(self, data):
+        self.fitted_value = self.model.eval(session=sess, feed_dict={self.x:data, self.keep_prob:1.0})
         return self.fitted_value

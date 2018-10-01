@@ -20,7 +20,7 @@ class Command(BaseCommand):
                 batch_size = 16)
 
             nn.get_result()
-            nn.get_fitted_value(np.array([[0, 0], [1, 0], [0, 1], [1, 1]]))
+            nn(np.array([[0, 0], [1, 0], [0, 1], [1, 1]]))
 
         except CommandError as e:
             print(e)
