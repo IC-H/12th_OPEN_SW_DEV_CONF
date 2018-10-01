@@ -32,6 +32,7 @@ class Command(BaseCommand):
                                             st_count, ss_count, ft_count, fs_count = classifier.test_result(s_count, f_count)
                                             tmp_result_prop = (ss_count + fs_count)/(st_count+ ft_count) *100
                                             if result_prop < tmp_result_prop:
+                                                result_prop = tmp_result_prop
                                                 classifier.save_result()
         except CommandError as e:
             print(e)
