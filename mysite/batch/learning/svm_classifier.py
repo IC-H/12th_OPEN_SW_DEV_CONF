@@ -30,6 +30,7 @@ class SvmClassifier(BaseClassifier):
         self.m_flg = m_flg
         self.c_flg = c_flg
         self.n_flg = n_flg
+        self.did_learn = False
     
     def _pre_process(self, data):
         """
