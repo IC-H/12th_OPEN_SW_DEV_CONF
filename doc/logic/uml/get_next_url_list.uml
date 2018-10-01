@@ -1,0 +1,25 @@
+@startuml
+start
+:Navigation Book
+====
+put URL to Navigation Book;
+note right: URL getted from domain in domain_mst table
+fork
+	repeat
+		: Get unvisited URL
+		====
+		 From Navigation Book;
+        :HTML Response
+        ====
+        Get from URL;
+        :JS Response
+        ====
+        Get from HTML response;
+        :URL
+        ====
+        From HTML a tag, form tag or JS files;
+        : Push URL to Navigation Book, if not visited yet;
+	repeat while (Is there any unvisited URL in Navigation Book?) is (yes)
+    stop
+end fork
+@enduml

@@ -1,0 +1,31 @@
+{% extends 'common/base.html' %}
+
+{% block title %}USER URL LIST{% endblock %}
+
+{% load static %}
+
+{% block javascripts %}
+    <script type='text/javascript' src='{% static "js/common.js" %}'></script>
+    <script type='text/javascript' src='{% static "js/model/model_ajax.js" %}'></script>
+    <script type='text/javascript' src='{% static "js/utils/strings.js" %}'></script>
+{% endblock %}
+
+{% block body %}
+<div>
+    <div class='header center text-center'>
+        <h1>You registered bellow url list</h1>
+    </div>
+    <div class='url-list'>
+        {% for domain_id, domain_data in object_list.domain_list.items %}
+            {% include 'common/accordion.html' with title=domain_data.domain item_list=domain_data.url_list panel_click_calback='return false;' checked=True %}
+        {% empty %}
+            <div class='center text-center'>
+                <p>Please Register Url</p>
+            </div>
+        {% endfor %}
+    </div>
+    <div class='link center text-center'>
+        <a href='{% url "search" %}'>Search Url</a>
+    </div>
+</div>
+{% endblock %}

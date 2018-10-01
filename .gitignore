@@ -1,0 +1,12 @@
+# ignore Local setting
+mysite/mysite/settings/develop.py
+
+# ignore py cache
+**/__pycache__/**
+
+# ignore log
+**.log.**
+**.log
+
+# ignore learning result
+*.sav
