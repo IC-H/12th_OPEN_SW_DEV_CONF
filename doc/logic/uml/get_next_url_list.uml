@@ -1,13 +1,14 @@
 @startuml
 start
-:URL;
-note right: Start URL is from domain in domain_mst table
-:Let url_list = empty array
+:Navigation Book
 ====
-url_list means a searched url list;
+put URL to Navigation Book;
+note right: URL getted from domain in domain_mst table
 fork
-    while (URL not in url_list) is (Yes)
-        :Push URL to url_list;
+	repeat
+		: Get unvisited URL
+		====
+		 From Navigation Book;
         :HTML Response
         ====
         Get from URL;
@@ -16,13 +17,9 @@ fork
         Get from HTML response;
         :URL
         ====
-        from HTML a tag, form tag or JS files;
-        if (Is there any URL) then (No)
-            stop
-        else (Yes)
-        endif
-    endwhile (No)
+        From HTML a tag, form tag or JS files;
+        : Push URL to Navigation Book, if not visited yet;
+	repeat while (Is there any unvisited URL in Navigation Book?) is (yes)
     stop
 end fork
-note right: Process will end if all URL in url_list
 @enduml
