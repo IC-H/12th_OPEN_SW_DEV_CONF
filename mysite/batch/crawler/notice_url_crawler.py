@@ -4,6 +4,7 @@ from batch.navigator import Navigator
 from batch.model_converter import HtmlVectorModelConverter, HtmlVectorWithDepthModelConverter, HtmlVectorLiteModelConverter
 from batch.vectorize import HtmlVectorize, HtmlDepthVectorizor, HtmlVectorizeLite
 from common.models import DomainUrl, HtmlVector, HtmlVectorWithDepth, HtmlVectorLite
+from batch.learning import SvmClassifier
 
 class NoticeUrlCrawler(BaseCrawler, Thread):
     
@@ -15,6 +16,7 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
         BaseCrawler.__init__(self, *args, **crawler_kwargs)
         Thread.__init__(self, *args, **kwargs)
         self.navigator = Navigator()
+        self.classifier = SvmClassifier()
     
     def run(self):
         # convert request.models.Response to each model of vector
@@ -59,6 +61,7 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
             for model in lite_converter.vector_model_set:
                 lite_vectorizor.vectorize(model)
             lite_vector_set = lite_vectorizor.get_vector_set
-            '''
-            check that url is for notice or not using vector_set
-            '''
+            if not self.classifier.did_learn:
+                is_notice = self.classifier(vector_set)
+                converter.domain_url_model.is_notice = is_notice
+                converter.domain_url_model.save()
