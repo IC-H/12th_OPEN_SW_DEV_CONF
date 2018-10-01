@@ -8,12 +8,17 @@ import re
 from . import BaseClassifier
 
 class SvmClassifier(BaseClassifier):
-    def __init__(self, kernel='rbf'):
+    
+    class Meta:
+        result_file_name = 'SVM_RESULT.sav'
+    
+    def __init__(self):
         super().__init__()
         self.vectorizor = HtmlVectorize(HtmlVector.VECTOR_INDICES)
-        self.clf = svm.SVC(kernel='rbf', gamma='scale')
-        print('learn through svm with %s kernel' %kernel)
         # self.reg = linear_model.Ridge(alpha = .5)
+    
+    def set_model(self, kernel='rbf'):
+        self.model = svm.SVC(kernel=kernel, gamma='scale')
     
     def _pre_process(self, data, deg=5, with_norm=True, m_flg=True, c_flg=True, n_flg=True):
         moms = moments(data, deg, with_norm=with_norm, with_label=True)
@@ -36,7 +41,7 @@ class SvmClassifier(BaseClassifier):
         return 0
     
     def learn(self, pre_processed_data_set, result_set):
-        self.clf.fit(pre_processed_data_set, result_set)
+        self.model.fit(pre_processed_data_set, result_set)
         # self.reg.fit(pre_processed_data_set, result_set)
         self.did_learn = True
     
@@ -102,7 +107,7 @@ class SvmClassifier(BaseClassifier):
     
     def classify(self, data):
         data = self._pre_process(data)
-        result = self.clf.predict([data])
+        result = self.model.predict([data])
         # print(self.reg.predict([data]))
         return result[0]
     

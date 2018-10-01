@@ -7,3 +7,6 @@ mysite/mysite/settings/develop.py
 # ignore log
 **.log.**
 **.log
+
+# ignore learning result
+*.sav
