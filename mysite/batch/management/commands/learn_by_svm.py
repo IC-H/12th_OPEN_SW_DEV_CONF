@@ -11,50 +11,25 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         try:
-            test_case = []
-            id_list = [74, 140, 505]
+            classifier = SvmClassifier()
+            result_prop = 0
             for kernel in ['sigmoid', 'rbf']:
-                for deg in range(0, 1):
+                for deg in range(1, 7):
                     for with_norm in [True, False]:
                         for m_flg in [True, False]:
                             for c_flg in [True, False]:
                                 for n_flg in [True, False]:
-                                    for id_len in range(2, len(id_list)):
-                                        for f_leng in [int(id_len/2), id_len - 1, id_len + 1 , id_len*2]:
-                                            classifier = SvmClassifier(kernel=kernel)
-                                            classifier.teach(deg=deg, with_norm=with_norm, m_flg=m_flg, c_flg=c_flg,
-                                                             n_flg=n_flg, id_list=id_list[:id_len], f_leng=f_leng)
-                                            st_count, ss_count, sf_count, ft_count, fs_count, ff_count = classifier.test_result(id_list=id_list[:id_len], f_leng=f_leng)
-                                            tmp ={}
-                                            tmp['deg'] = deg
-                                            tmp['with_norm'] = with_norm
-                                            tmp['m_flg'] = m_flg
-                                            tmp['c_flg'] = c_flg
-                                            tmp['n_flg'] = n_flg
-                                            tmp['id_list'] = len(id_list[:id_len])
-                                            tmp['f_leng'] = f_leng
-                                            tmp['st_count'] = st_count
-                                            tmp['ss_count'] = ss_count
-                                            tmp['sf_count'] = sf_count
-                                            tmp['ft_count'] = ft_count
-                                            tmp['fs_count'] = fs_count
-                                            tmp['ff_count'] = ff_count
-                                            test_case.append(tmp)
-            f_d = open('test_result.csv', 'a+')
-            str = ''
-            for case_label in test_case[0].keys():
-                str = str + case_label + ','
-            str = re.sub(',$', '\n', str)
-            for case in test_case:
-                for value in case.values():
-                    str = str + str(value) + ','
-                str = re.sub(',$', '\n', str)
-            f_d.close()
+                                    for s_count in range(10, 20, 2):
+                                        for f_count in [int(s_count/2), s_count, s_count*2]:
+                                            classifier.set_model(kernel, deg=deg, with_norm=with_norm, m_flg=m_flg, c_flg=c_flg, n_flg=n_flg)
+                                            classifier.teach(s_count=s_count, f_count=f_count)
+                                            st_count, ss_count, ft_count, fs_count = classifier.test_result(s_count, f_count)
+                                            tmp_result_prop = (ss_count + fs_count)/(st_count+ ft_count) *100
+                                            if result_prop < tmp_result_prop:
+                                                classifier.save_result()
         except CommandError as e:
             print(e)
         except ValidationError as e:
             print(e)
         except (IntegrityError, DatabaseError) as e:
-            print(e)
-        except Exception as e:
             print(e)
