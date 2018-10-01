@@ -1,6 +1,6 @@
 @startuml
 start
-:'from DomainUrl;
+:from DomainUrl;
 repeat
 if (has_change = True?) then (Yes)
     :Get user from UserUrl;

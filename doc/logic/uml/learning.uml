@@ -1,0 +1,23 @@
+@startuml
+start
+:get data
+====
+html_vector from DB]
+if (Did learn) then (Yes)
+    :load result;
+    stop
+else (No)
+    :Set learning model
+    ====
+    neural network
+    SVM
+    etc...;
+    :Preprocess data
+    ====
+    By momentum
+    or something etc;
+    :Learning;
+    :Save result;
+    stop
+endif
+@enduml

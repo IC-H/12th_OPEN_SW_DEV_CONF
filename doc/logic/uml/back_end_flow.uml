@@ -1,0 +1,49 @@
+@startuml
+start
+:Register domain to DB;
+if (did learn ?) then (yes)
+else (No)
+	if (has enough URL data ?) then (Yes)
+	else (No)
+	    :get URL from domain
+	    ====
+	    using batch command
+	    "search_notice_url";
+	    note left
+	        Just for gather URL
+	    end note
+	endif
+	:validate data
+	====
+	using batch command
+	"make_data";
+	:teach classifier
+	====
+	using batch command
+	"learn_by_svm"
+	"deep_learning";
+endif
+repeat
+fork
+    :get URL from domain
+    ====
+    enroll batch command
+    "search_notice_url";
+    note left
+        gather URL and 
+        classify for notice or not
+    end note
+fork again
+	:find if change exists
+	====
+	enroll batch command
+	"compare_vector";
+	note left
+		update notice flg
+	end note
+fork again
+	:inform to user if changed
+	====
+	enroll batch command
+	"send_mail";
+@enduml
