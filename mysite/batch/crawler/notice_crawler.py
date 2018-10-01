@@ -1,6 +1,7 @@
 from . import BaseCrawler
-from common.models import DomainUrl, HtmlVector
+from common.models import DomainUrl
 from batch.compare_vector import VectorComparer
+import requests
 
 class NoticeCrawler(BaseCrawler):
 
@@ -10,6 +11,13 @@ class NoticeCrawler(BaseCrawler):
     def run(self):
         Comparer = VectorComparer()
         for model in self.find_notice_model():
-        	response = self.get_request(model.url)
-        	Comparer.set_response(response)
-        	Comparer.compare_vector()
+            try:
+                response = self.get_request(model.url)
+            except requests.exceptions.Timeout as e:
+                print(e)
+                continue
+            except Exception as e:
+                print(e)
+                continue
+            Comparer.set_response(response)
+            Comparer.compare_vector()

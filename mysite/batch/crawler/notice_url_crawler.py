@@ -1,9 +1,9 @@
 from threading import Thread
 from .base_crawler import BaseCrawler
 from batch.navigator import Navigator
-from batch.model_converter import HtmlVectorModelConverter
-from batch.vectorize import HtmlVectorize
-from common.models import DomainUrl, HtmlVector
+from batch.model_converter import HtmlVectorModelConverter, HtmlVectorWithDepthModelConverter, HtmlVectorLiteModelConverter
+from batch.vectorize import HtmlVectorize, HtmlDepthVectorizor, HtmlVectorizeLite
+from common.models import DomainUrl, HtmlVector, HtmlVectorWithDepth, HtmlVectorLite
 
 class NoticeUrlCrawler(BaseCrawler, Thread):
     
@@ -17,8 +17,14 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
         self.navigator = Navigator()
     
     def run(self):
+        # convert request.models.Response to each model of vector
         converter = HtmlVectorModelConverter()
+        depth_converter = HtmlVectorWithDepthModelConverter()
+        lite_converter = HtmlVectorLiteModelConverter()
+        # vectorizor for each model of vector
         vectorizor = HtmlVectorize(HtmlVector.VECTOR_INDICES)
+        depth_vectorizor = HtmlDepthVectorizor(HtmlVectorWithDepth.VECTOR_INDICES)
+        lite_vectorizor = HtmlVectorizeLite(HtmlVectorLite.VECTOR_INDICES)
         
         while not self.navigator.is_over():
             url, request_moethod, request_params = self.navigator.get_next()
@@ -29,7 +35,6 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
                 response = self.get_request(url)
             
             self.navigator.analyze_response(response)
-            
             if response is None:
                 continue
             
@@ -37,11 +42,23 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
                 continue
             
             converter.run(response)
+            depth_converter.run(response)
+            lite_converter.run(response)
             converter.save_model_set()
+            depth_converter.save_model_set()
+            lite_converter.save_model_set()
             vectorizor.reset_vector_set()
             for model in converter.vector_model_set:
                 vectorizor.vectorize(model)
             vector_set = vectorizor.get_vector_set
+            depth_vectorizor.reset_vector_set()
+            for model in depth_converter.vector_model_set:
+                depth_vectorizor.vectorize(model)
+            depth_vector_set = depth_vectorizor.get_vector_set
+            lite_vectorizor.reset_vector_set()
+            for model in lite_converter.vector_model_set:
+                lite_vectorizor.vectorize(model)
+            lite_vector_set = lite_vectorizor.get_vector_set
             '''
             check that url is for notice or not using vector_set
             '''
