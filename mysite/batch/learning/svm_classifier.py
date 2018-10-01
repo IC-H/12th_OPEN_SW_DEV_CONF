@@ -114,3 +114,34 @@ class SvmClassifier(BaseClassifier):
         data = self._pre_process(data)
         result = self.model.predict([data])
         return result[0]
+    
+    def test_result(self, s_count=20, f_count=20):
+        
+        st_count = 0
+        ss_count = 0;
+        for model in DomainUrl.objects.filter(is_notice__exact=1)[s_count:]:
+            set = HtmlVector.objects.filter(url__exact=model)
+            if not set.exists():
+                continue
+            st_count += 1
+            self.vectorizor.reset_vector_set()
+            self.vectorizor.vectorize(query_set=set)
+            result = self.classify(self.vectorizor.get_vector_set())
+            if result:
+                ss_count += 1
+        
+        ft_count = 0
+        fs_count = 0;
+        
+        for model in DomainUrl.objects.filter(is_notice__exact=0)[f_count : f_count*2]:
+            set = HtmlVector.objects.filter(url__exact=model)
+            if not set.exists():
+                continue
+            ft_count += 1
+            self.vectorizor.reset_vector_set()
+            self.vectorizor.vectorize(query_set=set)
+            result = self.classify(self.vectorizor.get_vector_set())
+            if not result:
+                fs_count += 1
+        
+        return (st_count, ss_count, ft_count, fs_count)
