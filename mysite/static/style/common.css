@@ -37,6 +37,7 @@
 
 .text-center {
     text-align: -webkit-center;
+    text-align: -moz-center;
 }
 
 .hidden {
@@ -88,4 +89,50 @@ li.error {
 li.debug {
     list-style-type: none;
     background-color: white;
+}
+
+
+.topbar {
+    height: 120px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #333;
+}
+
+.topbar p {
+    padding: 15px 0px 0px 20px;
+    font-size: 18px;
+    color: white;
+}
+
+.topbar a.left {
+    float: left;
+    padding: 5px 20px 5px 20px;
+    font-size: 20px;
+    color: #ddd;
+    text-decoration: none;
+}
+
+.topbar a.right {
+    float: right;
+    padding: 5px 20px 5px 20px;
+    font-size: 20px;
+    color: #ddd;
+    text-decoration: none;
+}
+
+.topbar a:hover {
+    background-color: #444;
+    color: #ddd;
+}
+
+.topbar a.active {
+    background-color: #666;
+    color: white;
+}
+
+.top_maigin {
+    margin-top: 120px;
 }

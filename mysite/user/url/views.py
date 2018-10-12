@@ -34,5 +34,6 @@ class UrlListView(ListView):
         query_set_list      = DomainUrl.objects.filter(pk__in=url_id_list).select_related()
         
         return {
+            'user' : self.user,
             'domain_list' : DomainUrl.get_dict_type_domain_url_list(query_set_list)
         }
