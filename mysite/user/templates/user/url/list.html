@@ -13,11 +13,11 @@
 {% block body %}
 <div>
     <div class='topbar'>
-        <p> 환영합니다! {{ object_list.user.email }} 님~!! </p>
+        <p> 환영합니다! {{ object_list.user.email }} 님~! </p>
         <a class = 'active left' href='{% url "url_list" %}'>Url List</a>
         <a class = 'left' href='{% url "search" %}'>Search & Register</a>
         <a class = 'right' href='{% url "sign_up" %}'>비밀번호 변경</a>
-        <a class = 'right' href='{% url "log_out" %}'>회원 탈퇴</a>
+        <a class = 'right' href='{% url "check_delete" %}'>회원 탈퇴</a>
         <a class = 'right' href='{% url "log_out" %}'>로그아웃</a>
     </div>
     <div class='header center text-center top_maigin'>

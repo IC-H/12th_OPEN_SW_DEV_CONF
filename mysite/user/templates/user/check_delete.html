@@ -1,0 +1,25 @@
+{% extends 'common/base.html' %}
+
+{% load static %}
+
+{% block stylesheets %}
+    <link rel='stylesheet' href='{% static "style/user/login_box.css" %}'>
+{% endblock %}
+
+{% block title %}Yammy SPAM - 맞춤형 알람 서비스{% endblock %}
+
+{% block body %}
+<div >
+    <div class='header center text-center'>
+        <h1><br>Yammy SPAM~!</h1><br>
+    </div>
+    <div class='text-center'>
+        <form method="post" action="{% url 'delete' %}">
+            {% csrf_token %}
+            <h3>정말 탈퇴하실게에용?? ㅠㅠ</h3><br>
+            <p><a href="{% url 'url_list' %}">돌아가기</a></p><br>
+            <button type="submit">탈퇴</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
