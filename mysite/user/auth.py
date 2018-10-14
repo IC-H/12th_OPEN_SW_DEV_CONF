@@ -45,7 +45,7 @@ class Auth:
             # difference between an existing and a nonexistent user (#20760).
             return None
         else:
-            if user.check_password(password):
+            if user.check_password(password) and user.deleted_at == None:
                 return user
 
     @staticmethod
