@@ -7,6 +7,9 @@ from user.auth import Auth
 
 @transaction.atomic
 def url_register(request):
+    if request.method != 'POST':
+        messages.add_message(request, messages.ERROR, 'BAD REQUESTS!!')
+        return redirect(reverse_lazy('search'))
     user = Auth.get_user(request)
     added_url_id_list   = request.POST.getlist('added_url_id_list[]')
     deleted_url_id_list = request.POST.getlist('deleted_url_id_list[]')
