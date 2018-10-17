@@ -5,6 +5,7 @@ from batch.model_converter import HtmlVectorModelConverter, HtmlVectorWithDepthM
 from batch.vectorize import HtmlVectorize, HtmlDepthVectorizor, HtmlVectorizeLite
 from common.models import DomainUrl, HtmlVector, HtmlVectorWithDepth, HtmlVectorLite
 from batch.learning import SvmClassifier
+from requests.exceptions import Timeout
 
 class NoticeUrlCrawler(BaseCrawler, Thread):
     
@@ -31,10 +32,14 @@ class NoticeUrlCrawler(BaseCrawler, Thread):
         while not self.navigator.is_over():
             url, request_moethod, request_params = self.navigator.get_next()
             response = None
-            if request_moethod == 'POST':
-                response = self.post_request(url, request_params)
-            elif request_moethod == 'GET':
-                response = self.get_request(url)
+            try:
+                if request_moethod == 'POST':
+                    response = self.post_request(url, request_params)
+                elif request_moethod == 'GET':
+                    response = self.get_request(url)
+            except Timeout as e:
+                print(e)
+                continue
             
             self.navigator.analyze_response(response)
             if response is None:
