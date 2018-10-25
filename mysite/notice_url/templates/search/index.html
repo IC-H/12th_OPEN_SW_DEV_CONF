@@ -34,13 +34,13 @@
             />
             {% csrf_token %}
         </div>
+        <div class='center'>
+            <button class='main btn' onclick='NoticeUlrJsObj.submitToUrlRegister(event)'>Check It</button>
+        </div>
         <div class='url-list'>
             {% for domain_id, domain_data in domain_list.items %}
                 {% include 'common/accordion.html' with title=domain_data.domain title_key=domain_id item_list=domain_data.url_list %}
             {% endfor %}
-        </div>
-        <div class='center'>
-            <button class='main btn' onclick='NoticeUlrJsObj.submitToUrlRegister(event)'>Check It</button>
         </div>
         <div class='hidden'>
         </div>
