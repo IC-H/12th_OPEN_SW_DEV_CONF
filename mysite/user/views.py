@@ -2,12 +2,13 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.conf import settings
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic.edit import CreateView
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from urllib.parse import urlparse, urlunparse
 from .forms import AuthenticationForm, UserCreationForm
 from .auth import Auth
+from datetime import datetime
 
 # Create your views here.
 
@@ -40,3 +41,19 @@ def redirect_to_login(next, login_url=None, redirect_field_name=REDIRECT_FIELD_N
         login_url_parts[4] = querystring.urlencode(safe='/')
 
     return HttpResponseRedirect(urlunparse(login_url_parts))
+
+
+class log_out(LogoutView):
+    template_name = 'user/log_out.html'
+
+
+def CheckDelete(request):
+    return render(request, 'user/check_delete.html')
+
+
+def DeleteUser(request):
+    user = Auth.get_user(request)
+    user.updated_at = datetime.now()
+    user.deleted_at = datetime.now()
+    user.save()
+    return render(request, 'user/delete.html')

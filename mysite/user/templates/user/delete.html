@@ -1,0 +1,22 @@
+{% extends 'common/base.html' %}
+
+{% load static %}
+
+{% block stylesheets %}
+    <link rel='stylesheet' href='{% static "style/user/login_box.css" %}'>
+{% endblock %}
+
+{% block title %}Yummy SPAM - 맞춤형 알람 서비스{% endblock %}
+
+{% block body %}
+<div >
+    <div class='header center text-center'>
+        <h1><br>Yummy SPAM~!</h1><br>
+    </div>
+    <div class='text-center'>
+        <h3>탈퇴 완료되었습니다.</h3>
+        <h3>그동안 이용해주셔서 감사합니다.</h3><br>
+        <p><a href="{% url 'sign_in' %}">처음으로</a></p><br>
+    </div>
+</div>
+{% endblock %}
