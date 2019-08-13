@@ -1,7 +1,7 @@
 import os
 import sys
 import unittest
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 from unittest import mock
 
 from django.conf import ENVIRONMENT_VARIABLE, LazySettings, Settings, settings
@@ -318,6 +318,17 @@ class SettingsTests(SimpleTestCase):
         with self.assertRaisesMessage(RuntimeError, 'Settings already configured.'):
             settings.configure()
 
+    def test_nonupper_settings_prohibited_in_configure(self):
+        s = LazySettings()
+        with self.assertRaisesMessage(TypeError, "Setting 'foo' must be uppercase."):
+            s.configure(foo='bar')
+
+    def test_nonupper_settings_ignored_in_default_settings(self):
+        s = LazySettings()
+        s.configure(SimpleNamespace(foo='bar'))
+        with self.assertRaises(AttributeError):
+            getattr(s, 'foo')
+
     @requires_tz_support
     @mock.patch('django.conf.global_settings.TIME_ZONE', 'test')
     def test_incorrect_timezone(self):
@@ -350,22 +361,34 @@ class SecureProxySslHeaderTest(SimpleTestCase):
         req = HttpRequest()
         self.assertIs(req.is_secure(), False)
 
-    @override_settings(SECURE_PROXY_SSL_HEADER=('HTTP_X_FORWARDED_PROTOCOL', 'https'))
+    @override_settings(SECURE_PROXY_SSL_HEADER=('HTTP_X_FORWARDED_PROTO', 'https'))
     def test_set_without_xheader(self):
         req = HttpRequest()
         self.assertIs(req.is_secure(), False)
 
-    @override_settings(SECURE_PROXY_SSL_HEADER=('HTTP_X_FORWARDED_PROTOCOL', 'https'))
+    @override_settings(SECURE_PROXY_SSL_HEADER=('HTTP_X_FORWARDED_PROTO', 'https'))
     def test_set_with_xheader_wrong(self):
         req = HttpRequest()
-        req.META['HTTP_X_FORWARDED_PROTOCOL'] = 'wrongvalue'
+        req.META['HTTP_X_FORWARDED_PROTO'] = 'wrongvalue'
         self.assertIs(req.is_secure(), False)
 
-    @override_settings(SECURE_PROXY_SSL_HEADER=('HTTP_X_FORWARDED_PROTOCOL', 'https'))
+    @override_settings(SECURE_PROXY_SSL_HEADER=('HTTP_X_FORWARDED_PROTO', 'https'))
     def test_set_with_xheader_right(self):
         req = HttpRequest()
-        req.META['HTTP_X_FORWARDED_PROTOCOL'] = 'https'
+        req.META['HTTP_X_FORWARDED_PROTO'] = 'https'
         self.assertIs(req.is_secure(), True)
+
+    @override_settings(SECURE_PROXY_SSL_HEADER=('HTTP_X_FORWARDED_PROTO', 'https'))
+    def test_xheader_preferred_to_underlying_request(self):
+        class ProxyRequest(HttpRequest):
+            def _get_scheme(self):
+                """Proxy always connecting via HTTPS"""
+                return 'https'
+
+        # Client connects via HTTP.
+        req = ProxyRequest()
+        req.META['HTTP_X_FORWARDED_PROTO'] = 'http'
+        self.assertIs(req.is_secure(), False)
 
 
 class IsOverriddenTest(SimpleTestCase):

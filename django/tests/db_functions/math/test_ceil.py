@@ -11,6 +11,11 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class CeilTests(TestCase):
 
+    def test_null(self):
+        IntegerModel.objects.create()
+        obj = IntegerModel.objects.annotate(null_ceil=Ceil('normal')).first()
+        self.assertIsNone(obj.null_ceil)
+
     def test_decimal(self):
         DecimalModel.objects.create(n1=Decimal('12.9'), n2=Decimal('0.6'))
         obj = DecimalModel.objects.annotate(n1_ceil=Ceil('n1'), n2_ceil=Ceil('n2')).first()
@@ -45,5 +50,5 @@ class CeilTests(TestCase):
         with register_lookup(DecimalField, Ceil):
             DecimalModel.objects.create(n1=Decimal('3.12'), n2=Decimal('0'))
             DecimalModel.objects.create(n1=Decimal('1.25'), n2=Decimal('0'))
-            objs = DecimalModel.objects.filter(n1__ceil__gt=3)
-            self.assertQuerysetEqual(objs, [Decimal('3.12')], lambda a: a.n1)
+            obj = DecimalModel.objects.filter(n1__ceil__gt=3).get()
+            self.assertEqual(obj.n1, Decimal('3.12'))

@@ -11,6 +11,11 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class CotTests(TestCase):
 
+    def test_null(self):
+        IntegerModel.objects.create()
+        obj = IntegerModel.objects.annotate(null_cot=Cot('normal')).first()
+        self.assertIsNone(obj.null_cot)
+
     def test_decimal(self):
         DecimalModel.objects.create(n1=Decimal('-12.9'), n2=Decimal('0.6'))
         obj = DecimalModel.objects.annotate(n1_cot=Cot('n1'), n2_cot=Cot('n2')).first()
@@ -45,5 +50,5 @@ class CotTests(TestCase):
         with register_lookup(DecimalField, Cot):
             DecimalModel.objects.create(n1=Decimal('12.0'), n2=Decimal('0'))
             DecimalModel.objects.create(n1=Decimal('1.0'), n2=Decimal('0'))
-            objs = DecimalModel.objects.filter(n1__cot__gt=0)
-            self.assertQuerysetEqual(objs, [Decimal('1.0')], lambda a: a.n1)
+            obj = DecimalModel.objects.filter(n1__cot__gt=0).get()
+            self.assertEqual(obj.n1, Decimal('1.0'))

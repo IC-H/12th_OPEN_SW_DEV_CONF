@@ -309,7 +309,8 @@ class ModelPaginationTests(TestCase):
     """
     Test pagination with Django model instances
     """
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         # Prepare a list of objects for pagination.
         for x in range(1, 10):
             a = Article(headline='Article %s' % x, pub_date=datetime(2005, 7, 29))
@@ -365,7 +366,8 @@ class ModelPaginationTests(TestCase):
         # Make sure object_list queryset is not evaluated by an invalid __getitem__ call.
         # (this happens from the template engine when using eg: {% page_obj.has_previous %})
         self.assertIsNone(p.object_list._result_cache)
-        with self.assertRaises(TypeError):
+        msg = 'Page indices must be integers or slices, not str.'
+        with self.assertRaisesMessage(TypeError, msg):
             p['has_previous']
         self.assertIsNone(p.object_list._result_cache)
         self.assertNotIsInstance(p.object_list, list)

@@ -11,6 +11,11 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class ACosTests(TestCase):
 
+    def test_null(self):
+        IntegerModel.objects.create()
+        obj = IntegerModel.objects.annotate(null_acos=ACos('normal')).first()
+        self.assertIsNone(obj.null_acos)
+
     def test_decimal(self):
         DecimalModel.objects.create(n1=Decimal('-0.9'), n2=Decimal('0.6'))
         obj = DecimalModel.objects.annotate(n1_acos=ACos('n1'), n2_acos=ACos('n2')).first()
@@ -45,5 +50,5 @@ class ACosTests(TestCase):
         with register_lookup(DecimalField, ACos):
             DecimalModel.objects.create(n1=Decimal('0.5'), n2=Decimal('0'))
             DecimalModel.objects.create(n1=Decimal('-0.9'), n2=Decimal('0'))
-            objs = DecimalModel.objects.filter(n1__acos__lt=2)
-            self.assertQuerysetEqual(objs, [Decimal('0.5')], lambda a: a.n1)
+            obj = DecimalModel.objects.filter(n1__acos__lt=2).get()
+            self.assertEqual(obj.n1, Decimal('0.5'))

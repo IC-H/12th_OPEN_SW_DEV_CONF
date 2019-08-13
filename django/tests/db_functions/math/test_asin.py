@@ -11,6 +11,11 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class ASinTests(TestCase):
 
+    def test_null(self):
+        IntegerModel.objects.create()
+        obj = IntegerModel.objects.annotate(null_asin=ASin('normal')).first()
+        self.assertIsNone(obj.null_asin)
+
     def test_decimal(self):
         DecimalModel.objects.create(n1=Decimal('0.9'), n2=Decimal('0.6'))
         obj = DecimalModel.objects.annotate(n1_asin=ASin('n1'), n2_asin=ASin('n2')).first()
@@ -45,5 +50,5 @@ class ASinTests(TestCase):
         with register_lookup(DecimalField, ASin):
             DecimalModel.objects.create(n1=Decimal('0.1'), n2=Decimal('0'))
             DecimalModel.objects.create(n1=Decimal('1.0'), n2=Decimal('0'))
-            objs = DecimalModel.objects.filter(n1__asin__gt=1)
-            self.assertQuerysetEqual(objs, [Decimal('1.0')], lambda a: a.n1)
+            obj = DecimalModel.objects.filter(n1__asin__gt=1).get()
+            self.assertEqual(obj.n1, Decimal('1.0'))

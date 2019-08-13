@@ -1105,7 +1105,7 @@ class ModelStateTests(SimpleTestCase):
             class Meta:
                 app_label = 'migrations'
                 abstract = True
-                indexes = [models.indexes.Index(fields=['name'])]
+                indexes = [models.Index(fields=['name'])]
 
         class Child1(Abstract):
             pass
@@ -1131,7 +1131,7 @@ class ModelStateTests(SimpleTestCase):
 
             class Meta:
                 app_label = 'migrations'
-                indexes = [models.indexes.Index(fields=['name'], name='foo_idx')]
+                indexes = [models.Index(fields=['name'], name='foo_idx')]
 
         model_state = ModelState.from_model(TestModel)
         index_names = [index.name for index in model_state.options['indexes']]
@@ -1143,7 +1143,7 @@ class ModelStateTests(SimpleTestCase):
             size = models.IntegerField()
 
             class Meta:
-                constraints = [models.CheckConstraint(models.Q(size__gt=1), 'size_gt_1')]
+                constraints = [models.CheckConstraint(check=models.Q(size__gt=1), name='size_gt_1')]
 
         state = ModelState.from_model(ModelWithConstraints)
         model_constraints = ModelWithConstraints._meta.constraints

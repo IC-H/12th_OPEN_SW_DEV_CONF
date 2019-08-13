@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone as datetime_timezone
 
 import pytz
 
 from django.conf import settings
 from django.db.models import (
-    DateField, DateTimeField, IntegerField, Max, OuterRef, Subquery, TimeField,
+    DateField, DateTimeField, F, IntegerField, Max, OuterRef, Subquery,
+    TimeField,
 )
 from django.db.models.functions import (
     Extract, ExtractDay, ExtractHour, ExtractIsoYear, ExtractMinute,
@@ -66,11 +67,14 @@ class DateFunctionTests(TestCase):
 
     def create_model(self, start_datetime, end_datetime):
         return DTModel.objects.create(
-            name=start_datetime.isoformat(),
-            start_datetime=start_datetime, end_datetime=end_datetime,
-            start_date=start_datetime.date(), end_date=end_datetime.date(),
-            start_time=start_datetime.time(), end_time=end_datetime.time(),
-            duration=(end_datetime - start_datetime),
+            name=start_datetime.isoformat() if start_datetime else 'None',
+            start_datetime=start_datetime,
+            end_datetime=end_datetime,
+            start_date=start_datetime.date() if start_datetime else None,
+            end_date=end_datetime.date() if end_datetime else None,
+            start_time=start_datetime.time() if start_datetime else None,
+            end_time=end_datetime.time() if end_datetime else None,
+            duration=(end_datetime - start_datetime) if start_datetime and end_datetime else None,
         )
 
     def test_extract_year_exact_lookup(self):
@@ -105,6 +109,14 @@ class DateFunctionTests(TestCase):
                 query_string = str(qs.query).lower()
                 self.assertEqual(query_string.count(' between '), 1)
                 self.assertEqual(query_string.count('extract'), 0)
+                # an expression rhs cannot use the between optimization.
+                qs = DTModel.objects.annotate(
+                    start_year=ExtractYear('start_datetime'),
+                ).filter(end_datetime__year=F('start_year') + 1)
+                self.assertEqual(qs.count(), 1)
+                query_string = str(qs.query).lower()
+                self.assertEqual(query_string.count(' between '), 0)
+                self.assertEqual(query_string.count('extract'), 3)
 
     def test_extract_year_greaterthan_lookup(self):
         start_datetime = datetime(2015, 6, 15, 14, 10)
@@ -123,6 +135,11 @@ class DateFunctionTests(TestCase):
                 qs = DTModel.objects.filter(**{'start_datetime__%s__gte' % lookup: 2015})
                 self.assertEqual(qs.count(), 2)
                 self.assertEqual(str(qs.query).lower().count('extract'), 0)
+                qs = DTModel.objects.annotate(
+                    start_year=ExtractYear('start_datetime'),
+                ).filter(**{'end_datetime__%s__gte' % lookup: F('start_year')})
+                self.assertEqual(qs.count(), 1)
+                self.assertGreaterEqual(str(qs.query).lower().count('extract'), 2)
 
     def test_extract_year_lessthan_lookup(self):
         start_datetime = datetime(2015, 6, 15, 14, 10)
@@ -141,6 +158,11 @@ class DateFunctionTests(TestCase):
                 qs = DTModel.objects.filter(**{'start_datetime__%s__lte' % lookup: 2016})
                 self.assertEqual(qs.count(), 2)
                 self.assertEqual(str(qs.query).count('extract'), 0)
+                qs = DTModel.objects.annotate(
+                    end_year=ExtractYear('end_datetime'),
+                ).filter(**{'start_datetime__%s__lte' % lookup: F('end_year')})
+                self.assertEqual(qs.count(), 1)
+                self.assertGreaterEqual(str(qs.query).lower().count('extract'), 2)
 
     def test_extract_func(self):
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
@@ -215,6 +237,12 @@ class DateFunctionTests(TestCase):
         self.assertEqual(DTModel.objects.filter(start_date__month=Extract('start_date', 'month')).count(), 2)
         self.assertEqual(DTModel.objects.filter(start_time__hour=Extract('start_time', 'hour')).count(), 2)
 
+    def test_extract_none(self):
+        self.create_model(None, None)
+        for t in (Extract('start_datetime', 'year'), Extract('start_date', 'year'), Extract('start_time', 'hour')):
+            with self.subTest(t):
+                self.assertIsNone(DTModel.objects.annotate(extracted=t).first().extracted)
+
     @skipUnlessDBFeature('has_native_duration_field')
     def test_extract_duration(self):
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
@@ -244,6 +272,13 @@ class DateFunctionTests(TestCase):
         msg = 'Extract requires native DurationField database support.'
         with self.assertRaisesMessage(ValueError, msg):
             list(DTModel.objects.annotate(extracted=Extract('duration', 'second')))
+
+    def test_extract_duration_unsupported_lookups(self):
+        msg = "Cannot extract component '%s' from DurationField 'duration'."
+        for lookup in ('year', 'iso_year', 'month', 'week', 'week_day', 'quarter'):
+            with self.subTest(lookup):
+                with self.assertRaisesMessage(ValueError, msg % lookup):
+                    DTModel.objects.annotate(extracted=Extract('duration', lookup))
 
     def test_extract_year_func(self):
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
@@ -608,6 +643,12 @@ class DateFunctionTests(TestCase):
         qs = DTModel.objects.filter(start_datetime__date=Trunc('start_datetime', 'day', output_field=DateField()))
         self.assertEqual(qs.count(), 2)
 
+    def test_trunc_none(self):
+        self.create_model(None, None)
+        for t in (Trunc('start_datetime', 'year'), Trunc('start_date', 'year'), Trunc('start_time', 'hour')):
+            with self.subTest(t):
+                self.assertIsNone(DTModel.objects.annotate(truncated=t).first().truncated)
+
     def test_trunc_year_func(self):
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = truncate_to(datetime(2016, 6, 15, 14, 10, 50, 123), 'year')
@@ -761,6 +802,10 @@ class DateFunctionTests(TestCase):
         with self.assertRaisesMessage(ValueError, "Cannot truncate TimeField 'start_time' to DateField"):
             list(DTModel.objects.annotate(truncated=TruncDate('start_time', output_field=TimeField())))
 
+    def test_trunc_date_none(self):
+        self.create_model(None, None)
+        self.assertIsNone(DTModel.objects.annotate(truncated=TruncDate('start_datetime')).first().truncated)
+
     def test_trunc_time_func(self):
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
@@ -784,6 +829,10 @@ class DateFunctionTests(TestCase):
 
         with self.assertRaisesMessage(ValueError, "Cannot truncate DateField 'start_date' to TimeField"):
             list(DTModel.objects.annotate(truncated=TruncTime('start_date', output_field=DateField())))
+
+    def test_trunc_time_none(self):
+        self.create_model(None, None)
+        self.assertIsNone(DTModel.objects.annotate(truncated=TruncTime('start_datetime')).first().truncated)
 
     def test_trunc_day_func(self):
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
@@ -946,6 +995,8 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
         end_datetime = timezone.make_aware(end_datetime, is_dst=False)
         self.create_model(start_datetime, end_datetime)
         melb = pytz.timezone('Australia/Melbourne')
+        delta_tzinfo_pos = datetime_timezone(timedelta(hours=5))
+        delta_tzinfo_neg = datetime_timezone(timedelta(hours=-5, minutes=17))
 
         qs = DTModel.objects.annotate(
             day=Extract('start_datetime', 'day'),
@@ -957,6 +1008,9 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
             quarter=ExtractQuarter('start_datetime', tzinfo=melb),
             hour=ExtractHour('start_datetime'),
             hour_melb=ExtractHour('start_datetime', tzinfo=melb),
+            hour_with_delta_pos=ExtractHour('start_datetime', tzinfo=delta_tzinfo_pos),
+            hour_with_delta_neg=ExtractHour('start_datetime', tzinfo=delta_tzinfo_neg),
+            minute_with_delta_neg=ExtractMinute('start_datetime', tzinfo=delta_tzinfo_neg),
         ).order_by('start_datetime')
 
         utc_model = qs.get()
@@ -969,6 +1023,9 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
         self.assertEqual(utc_model.quarter, 2)
         self.assertEqual(utc_model.hour, 23)
         self.assertEqual(utc_model.hour_melb, 9)
+        self.assertEqual(utc_model.hour_with_delta_pos, 4)
+        self.assertEqual(utc_model.hour_with_delta_neg, 18)
+        self.assertEqual(utc_model.minute_with_delta_neg, 47)
 
         with timezone.override(melb):
             melb_model = qs.get()
@@ -1020,6 +1077,30 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
         self.assertEqual(model.start_datetime.year, 2016)
         self.assertEqual(model.melb_year.year, 2016)
         self.assertEqual(model.pacific_year.year, 2015)
+
+    def test_trunc_ambiguous_and_invalid_times(self):
+        sao = pytz.timezone('America/Sao_Paulo')
+        utc = pytz.timezone('UTC')
+        start_datetime = utc.localize(datetime(2016, 10, 16, 13))
+        end_datetime = utc.localize(datetime(2016, 2, 21, 1))
+        self.create_model(start_datetime, end_datetime)
+        with timezone.override(sao):
+            with self.assertRaisesMessage(pytz.NonExistentTimeError, '2016-10-16 00:00:00'):
+                model = DTModel.objects.annotate(truncated_start=TruncDay('start_datetime')).get()
+            with self.assertRaisesMessage(pytz.AmbiguousTimeError, '2016-02-20 23:00:00'):
+                model = DTModel.objects.annotate(truncated_end=TruncHour('end_datetime')).get()
+            model = DTModel.objects.annotate(
+                truncated_start=TruncDay('start_datetime', is_dst=False),
+                truncated_end=TruncHour('end_datetime', is_dst=False),
+            ).get()
+            self.assertEqual(model.truncated_start.dst(), timedelta(0))
+            self.assertEqual(model.truncated_end.dst(), timedelta(0))
+            model = DTModel.objects.annotate(
+                truncated_start=TruncDay('start_datetime', is_dst=True),
+                truncated_end=TruncHour('end_datetime', is_dst=True),
+            ).get()
+            self.assertEqual(model.truncated_start.dst(), timedelta(0, 3600))
+            self.assertEqual(model.truncated_end.dst(), timedelta(0, 3600))
 
     def test_trunc_func_with_timezone(self):
         """

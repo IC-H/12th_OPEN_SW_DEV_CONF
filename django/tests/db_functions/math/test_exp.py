@@ -11,6 +11,11 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class ExpTests(TestCase):
 
+    def test_null(self):
+        IntegerModel.objects.create()
+        obj = IntegerModel.objects.annotate(null_exp=Exp('normal')).first()
+        self.assertIsNone(obj.null_exp)
+
     def test_decimal(self):
         DecimalModel.objects.create(n1=Decimal('-12.9'), n2=Decimal('0.6'))
         obj = DecimalModel.objects.annotate(n1_exp=Exp('n1'), n2_exp=Exp('n2')).first()
@@ -45,5 +50,5 @@ class ExpTests(TestCase):
         with register_lookup(DecimalField, Exp):
             DecimalModel.objects.create(n1=Decimal('12.0'), n2=Decimal('0'))
             DecimalModel.objects.create(n1=Decimal('-1.0'), n2=Decimal('0'))
-            objs = DecimalModel.objects.filter(n1__exp__gt=10)
-            self.assertQuerysetEqual(objs, [Decimal('12.0')], lambda a: a.n1)
+            obj = DecimalModel.objects.filter(n1__exp__gt=10).get()
+            self.assertEqual(obj.n1, Decimal('12.0'))

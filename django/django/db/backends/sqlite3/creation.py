@@ -25,7 +25,7 @@ class DatabaseCreation(BaseDatabaseCreation):
         if not self.is_in_memory_db(test_database_name):
             # Erase the old test database
             if verbosity >= 1:
-                self.log('Destroying old test database for alias %s…' % (
+                self.log('Destroying old test database for alias %s...' % (
                     self._get_database_display_str(verbosity, test_database_name),
                 ))
             if os.access(test_database_name, os.F_OK):
@@ -64,7 +64,7 @@ class DatabaseCreation(BaseDatabaseCreation):
                 if keepdb:
                     return
                 if verbosity >= 1:
-                    self.log('Destroying old test database for alias %s…' % (
+                    self.log('Destroying old test database for alias %s...' % (
                         self._get_database_display_str(verbosity, target_database_name),
                     ))
                 try:
@@ -89,7 +89,7 @@ class DatabaseCreation(BaseDatabaseCreation):
 
         This takes into account the special cases of ":memory:" and "" for
         SQLite since the databases will be distinct despite having the same
-        TEST NAME. See http://www.sqlite.org/inmemorydb.html
+        TEST NAME. See https://www.sqlite.org/inmemorydb.html
         """
         test_database_name = self._get_test_db_name()
         sig = [self.connection.settings_dict['NAME']]

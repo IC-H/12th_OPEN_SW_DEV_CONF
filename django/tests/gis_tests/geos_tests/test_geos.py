@@ -280,6 +280,12 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
 
             prev = pnt  # setting the previous geometry
 
+    def test_point_reverse(self):
+        point = GEOSGeometry('POINT(144.963 -37.8143)', 4326)
+        self.assertEqual(point.srid, 4326)
+        point.reverse()
+        self.assertEqual(point.ewkt, 'SRID=4326;POINT (-37.8143 144.963)')
+
     def test_multipoints(self):
         "Testing MultiPoint objects."
         for mp in self.geometries.multipoints:
@@ -347,6 +353,12 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
 
         # Test __iter__().
         self.assertEqual(list(LineString((0, 0), (1, 1), (2, 2))), [(0, 0), (1, 1), (2, 2)])
+
+    def test_linestring_reverse(self):
+        line = GEOSGeometry('LINESTRING(144.963 -37.8143,151.2607 -33.887)', 4326)
+        self.assertEqual(line.srid, 4326)
+        line.reverse()
+        self.assertEqual(line.ewkt, 'SRID=4326;LINESTRING (151.2607 -33.887, 144.963 -37.8143)')
 
     def test_multilinestring(self):
         "Testing MultiLineString objects."
@@ -476,8 +488,8 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
                 Polygon('foo')
 
             # Polygon(shell, (hole1, ... holeN))
-            rings = tuple(r for r in poly)
-            self.assertEqual(poly, Polygon(rings[0], rings[1:]))
+            ext_ring, *int_rings = poly
+            self.assertEqual(poly, Polygon(ext_ring, int_rings))
 
             # Polygon(shell_tuple, hole_tuple1, ... , hole_tupleN)
             ring_tuples = tuple(r.tuple for r in poly)
@@ -724,14 +736,6 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         ls_not_closed = LineString((0, 0), (1, 1))
         self.assertFalse(ls_not_closed.closed)
         self.assertTrue(ls_closed.closed)
-
-        if geos_version_tuple() >= (3, 5):
-            self.assertFalse(MultiLineString(ls_closed, ls_not_closed).closed)
-            self.assertTrue(MultiLineString(ls_closed, ls_closed).closed)
-
-        with mock.patch('django.contrib.gis.geos.libgeos.geos_version', lambda: b'3.4.9'):
-            with self.assertRaisesMessage(GEOSException, "MultiLineString.closed requires GEOS >= 3.5.0."):
-                MultiLineString().closed
 
     def test_srid(self):
         "Testing the SRID property and keyword."
@@ -1118,7 +1122,7 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
     def test_transform_3d(self):
         p3d = GEOSGeometry('POINT (5 23 100)', 4326)
         p3d.transform(2774)
-        self.assertEqual(p3d.z, 100)
+        self.assertAlmostEqual(p3d.z, 100, 3)
 
     def test_transform_noop(self):
         """ Testing `transform` method (SRID match) """

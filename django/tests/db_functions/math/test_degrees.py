@@ -11,6 +11,11 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class DegreesTests(TestCase):
 
+    def test_null(self):
+        IntegerModel.objects.create()
+        obj = IntegerModel.objects.annotate(null_degrees=Degrees('normal')).first()
+        self.assertIsNone(obj.null_degrees)
+
     def test_decimal(self):
         DecimalModel.objects.create(n1=Decimal('-12.9'), n2=Decimal('0.6'))
         obj = DecimalModel.objects.annotate(n1_degrees=Degrees('n1'), n2_degrees=Degrees('n2')).first()
@@ -45,5 +50,5 @@ class DegreesTests(TestCase):
         with register_lookup(DecimalField, Degrees):
             DecimalModel.objects.create(n1=Decimal('5.4'), n2=Decimal('0'))
             DecimalModel.objects.create(n1=Decimal('-30'), n2=Decimal('0'))
-            objs = DecimalModel.objects.filter(n1__degrees__gt=0)
-            self.assertQuerysetEqual(objs, [Decimal('5.4')], lambda a: a.n1)
+            obj = DecimalModel.objects.filter(n1__degrees__gt=0).get()
+            self.assertEqual(obj.n1, Decimal('5.4'))

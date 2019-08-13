@@ -1,10 +1,11 @@
 import json
 
 from django.core import checks, exceptions, serializers
+from django.db import connection
 from django.forms import Form
-from django.test.utils import isolate_apps, modify_settings
+from django.test.utils import CaptureQueriesContext, isolate_apps
 
-from . import PostgreSQLTestCase
+from . import PostgreSQLSimpleTestCase, PostgreSQLTestCase
 from .models import HStoreModel, PostgreSQLModel
 
 try:
@@ -15,12 +16,7 @@ except ImportError:
     pass
 
 
-@modify_settings(INSTALLED_APPS={'append': 'django.contrib.postgres'})
-class HStoreTestCase(PostgreSQLTestCase):
-    pass
-
-
-class SimpleTests(HStoreTestCase):
+class SimpleTests(PostgreSQLTestCase):
     def test_save_load_success(self):
         value = {'a': 'b'}
         instance = HStoreModel(field=value)
@@ -69,16 +65,17 @@ class SimpleTests(HStoreTestCase):
         self.assertEqual(instance.array_field, expected_value)
 
 
-class TestQuerying(HStoreTestCase):
+class TestQuerying(PostgreSQLTestCase):
 
-    def setUp(self):
-        self.objs = [
-            HStoreModel.objects.create(field={'a': 'b'}),
-            HStoreModel.objects.create(field={'a': 'b', 'c': 'd'}),
-            HStoreModel.objects.create(field={'c': 'd'}),
-            HStoreModel.objects.create(field={}),
-            HStoreModel.objects.create(field=None),
-        ]
+    @classmethod
+    def setUpTestData(cls):
+        cls.objs = HStoreModel.objects.bulk_create([
+            HStoreModel(field={'a': 'b'}),
+            HStoreModel(field={'a': 'b', 'c': 'd'}),
+            HStoreModel(field={'c': 'd'}),
+            HStoreModel(field={}),
+            HStoreModel(field=None),
+        ])
 
     def test_exact(self):
         self.assertSequenceEqual(
@@ -189,9 +186,21 @@ class TestQuerying(HStoreTestCase):
             self.objs[:2]
         )
 
+    def test_key_sql_injection(self):
+        with CaptureQueriesContext(connection) as queries:
+            self.assertFalse(
+                HStoreModel.objects.filter(**{
+                    "field__test' = 'a') OR 1 = 1 OR ('d": 'x',
+                }).exists()
+            )
+        self.assertIn(
+            """."field" -> 'test'' = ''a'') OR 1 = 1 OR (''d') = 'x' """,
+            queries[0]['sql'],
+        )
+
 
 @isolate_apps('postgres_tests')
-class TestChecks(PostgreSQLTestCase):
+class TestChecks(PostgreSQLSimpleTestCase):
 
     def test_invalid_default(self):
         class MyModel(PostgreSQLModel):
@@ -218,7 +227,7 @@ class TestChecks(PostgreSQLTestCase):
         self.assertEqual(MyModel().check(), [])
 
 
-class TestSerialization(HStoreTestCase):
+class TestSerialization(PostgreSQLSimpleTestCase):
     test_data = json.dumps([{
         'model': 'postgres_tests.hstoremodel',
         'pk': None,
@@ -248,21 +257,21 @@ class TestSerialization(HStoreTestCase):
         self.assertEqual(instance.field, new_instance.field)
 
 
-class TestValidation(HStoreTestCase):
+class TestValidation(PostgreSQLSimpleTestCase):
 
     def test_not_a_string(self):
         field = HStoreField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean({'a': 1}, None)
         self.assertEqual(cm.exception.code, 'not_a_string')
-        self.assertEqual(cm.exception.message % cm.exception.params, 'The value of "a" is not a string or null.')
+        self.assertEqual(cm.exception.message % cm.exception.params, 'The value of “a” is not a string or null.')
 
     def test_none_allowed_as_value(self):
         field = HStoreField()
         self.assertEqual(field.clean({'a': None}, None), {'a': None})
 
 
-class TestFormField(HStoreTestCase):
+class TestFormField(PostgreSQLSimpleTestCase):
 
     def test_valid(self):
         field = forms.HStoreField()
@@ -325,7 +334,7 @@ class TestFormField(HStoreTestCase):
         self.assertTrue(form_w_hstore.has_changed())
 
 
-class TestValidator(HStoreTestCase):
+class TestValidator(PostgreSQLSimpleTestCase):
 
     def test_simple_valid(self):
         validator = KeysValidator(keys=['a', 'b'])

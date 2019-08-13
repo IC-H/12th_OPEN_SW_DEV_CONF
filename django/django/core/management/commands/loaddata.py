@@ -226,7 +226,7 @@ class Command(BaseCommand):
         ser_fmts = serializers.get_public_serializer_formats() if ser_fmt is None else [ser_fmt]
 
         if self.verbosity >= 2:
-            self.stdout.write("Loading '%s' fixtures…" % fixture_name)
+            self.stdout.write("Loading '%s' fixtures..." % fixture_name)
 
         if os.path.isabs(fixture_name):
             fixture_dirs = [os.path.dirname(fixture_name)]
@@ -247,7 +247,7 @@ class Command(BaseCommand):
         fixture_files = []
         for fixture_dir in fixture_dirs:
             if self.verbosity >= 2:
-                self.stdout.write("Checking %s for fixtures…" % humanize(fixture_dir))
+                self.stdout.write("Checking %s for fixtures..." % humanize(fixture_dir))
             fixture_files_in_dir = []
             path = os.path.join(fixture_dir, fixture_name)
             for candidate in glob.iglob(glob.escape(path) + '*'):
@@ -298,10 +298,9 @@ class Command(BaseCommand):
                 continue
             if os.path.isdir(app_dir):
                 dirs.append(app_dir)
-        dirs.extend(list(fixture_dirs))
+        dirs.extend(fixture_dirs)
         dirs.append('')
-        dirs = [os.path.abspath(os.path.realpath(d)) for d in dirs]
-        return dirs
+        return [os.path.realpath(d) for d in dirs]
 
     def parse_name(self, fixture_name):
         """
@@ -327,7 +326,7 @@ class Command(BaseCommand):
             else:
                 raise CommandError(
                     "Problem installing fixture '%s': %s is not a known "
-                    "serialization format." % (''.join(parts[:-1]), parts[-1]))
+                    "serialization format." % ('.'.join(parts[:-1]), parts[-1]))
         else:
             ser_fmt = None
 

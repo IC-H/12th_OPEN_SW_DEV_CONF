@@ -1,5 +1,5 @@
 """Database functions that do comparisons or type conversions."""
-from django.db.models import Func
+from django.db.models.expressions import Func, Value
 
 
 class Cast(Func):
@@ -13,6 +13,20 @@ class Cast(Func):
     def as_sql(self, compiler, connection, **extra_context):
         extra_context['db_type'] = self.output_field.cast_db_type(connection)
         return super().as_sql(compiler, connection, **extra_context)
+
+    def as_sqlite(self, compiler, connection, **extra_context):
+        db_type = self.output_field.db_type(connection)
+        if db_type in {'datetime', 'time'}:
+            # Use strftime as datetime/time don't keep fractional seconds.
+            template = 'strftime(%%s, %(expressions)s)'
+            sql, params = super().as_sql(compiler, connection, template=template, **extra_context)
+            format_string = '%H:%M:%f' if db_type == 'time' else '%Y-%m-%d %H:%M:%f'
+            params.insert(0, format_string)
+            return sql, params
+        elif db_type == 'date':
+            template = 'date(%(expressions)s)'
+            return super().as_sql(compiler, connection, template=template, **extra_context)
+        return self.as_sql(compiler, connection, **extra_context)
 
     def as_mysql(self, compiler, connection, **extra_context):
         # MySQL doesn't support explicit cast to float.
@@ -39,14 +53,10 @@ class Coalesce(Func):
         # Oracle prohibits mixing TextField (NCLOB) and CharField (NVARCHAR2),
         # so convert all fields to NCLOB when that type is expected.
         if self.output_field.get_internal_type() == 'TextField':
-            class ToNCLOB(Func):
-                function = 'TO_NCLOB'
-
-            expressions = [
-                ToNCLOB(expression) for expression in self.get_source_expressions()
-            ]
             clone = self.copy()
-            clone.set_source_expressions(expressions)
+            clone.set_source_expressions([
+                Func(expression, function='TO_NCLOB') for expression in self.get_source_expressions()
+            ])
             return super(Coalesce, clone).as_sql(compiler, connection, **extra_context)
         return self.as_sql(compiler, connection, **extra_context)
 
@@ -89,3 +99,14 @@ class Least(Func):
     def as_sqlite(self, compiler, connection, **extra_context):
         """Use the MIN function on SQLite."""
         return super().as_sqlite(compiler, connection, function='MIN', **extra_context)
+
+
+class NullIf(Func):
+    function = 'NULLIF'
+    arity = 2
+
+    def as_oracle(self, compiler, connection, **extra_context):
+        expression1 = self.get_source_expressions()[0]
+        if isinstance(expression1, Value) and expression1.value is None:
+            raise ValueError('Oracle does not allow Value(None) for expression1.')
+        return super().as_sql(compiler, connection, **extra_context)

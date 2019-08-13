@@ -11,6 +11,11 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class ATanTests(TestCase):
 
+    def test_null(self):
+        IntegerModel.objects.create()
+        obj = IntegerModel.objects.annotate(null_atan=ATan('normal')).first()
+        self.assertIsNone(obj.null_atan)
+
     def test_decimal(self):
         DecimalModel.objects.create(n1=Decimal('-12.9'), n2=Decimal('0.6'))
         obj = DecimalModel.objects.annotate(n1_atan=ATan('n1'), n2_atan=ATan('n2')).first()
@@ -45,5 +50,5 @@ class ATanTests(TestCase):
         with register_lookup(DecimalField, ATan):
             DecimalModel.objects.create(n1=Decimal('3.12'), n2=Decimal('0'))
             DecimalModel.objects.create(n1=Decimal('-5'), n2=Decimal('0'))
-            objs = DecimalModel.objects.filter(n1__atan__gt=0)
-            self.assertQuerysetEqual(objs, [Decimal('3.12')], lambda a: a.n1)
+            obj = DecimalModel.objects.filter(n1__atan__gt=0).get()
+            self.assertEqual(obj.n1, Decimal('3.12'))
